@@ -43,9 +43,9 @@ fun FirstSampleScreen(navigationManager: NavigationManager) {
 
 val navigationState = navigationManager.stateFlow.collectAsState()
 
-when (val state = navigationState.value.currentDestination) {
+when (val destination = navigationState.value.currentDestination) {
     // ...
-    is SecondSampleScreen -> SecondSampleScreen(navigationManager, state.text)
+    is SecondSampleScreen -> SecondSampleScreen(navigationManager, destination.text)
     // ...
 }
 ```
