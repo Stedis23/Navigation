@@ -1,3 +1,5 @@
 package com.stedis.navigation.core
 
-interface Destination
+import android.os.Parcelable
+
+interface Destination : Parcelable
