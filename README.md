@@ -7,11 +7,6 @@ Navigation is a simple way to manage application navigation as a state
 
 ## Add library
 
-Facts about library:
-
-- The library is not tied to the UI and can be used in any project
-- State management based on command pattern
-
 ```kotlin
 
 // Add dependencies to use without UI
