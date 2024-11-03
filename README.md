@@ -45,12 +45,12 @@ fun FirstSampleScreen() {
 
 //add destinations and associations for composable screens
 @Parcelize
-class FirstSampleDestination : ComposeNavigationGraph.Destinations() {
+class FirstSampleDestination : Destinations() {
     override fun associate() = associate { FirstSampleScreen() }
 }
 
 @Parcelize
-data class SecondSampleDestination(val text: String) : ComposeNavigationGraph.Destinations() {
+data class SecondSampleDestination(val text: String) : Destinations() {
     override fun associate() = associate { destination ->
         SecondSampleScreen((destination as SecondSampleDestination).text)
     }
