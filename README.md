@@ -11,12 +11,14 @@ Facts about library:
 
 - The library is not tied to the UI and can be used in any project
 - State management based on command pattern
-- - Fully async using Coroutines
 
 ```kotlin
 
 // Add dependencies to use without UI
-implementation("io.github.stedis23:navigation-core:0.1.1")
+implementation("io.github.stedis23:navigation-core:0.1.5")
+
+// For project with Compose
+implementation("io.github.stedis23:navigation-compose-ui:0.1.5")
 
 ```
 
@@ -24,29 +26,49 @@ implementation("io.github.stedis23:navigation-core:0.1.1")
 
 ```kotlin
 
+//create names for your hosts
 object Hosts {
-    const val ROOT_HOST = "root_host"
+    const val ROOT = "root"
 }
 
-class FirstSampleScreen : Destination
+//create navigation graph
+object NavigationGraph : ComposeNavigationGraph(ComposeAssociationManager())
 
-data class SecondSampleScreen(val text: String) : Destination
-
-val navigationManager = NavigationManager {
-    NavigationState(initialHost = NavigationHost(Hosts.ROOT_HOST, FirstSampleScreen()))
-}
-
+//implement your composable screens
 @Composable
-fun FirstSampleScreen(navigationManager: NavigationManager) {
-    val onItemSelected: (String) -> Unit = { text -> navigationManager.execute(ForwardCommand(SecondSampleScreen(text))) }
+fun FirstSampleScreen() {
+    val navigationManager = LocalNavigationManager.current
+    val onItemSelected: (String) -> Unit = { text ->
+        navigationManager.execute(ForwardCommand(SecondSampleDestination(text)))
+    }
 }
 
-val navigationState = navigationManager.stateFlow.collectAsState()
+//add destinations and associations for composable screens
+@Parcelize
+class FirstSampleDestination : ComposeNavigationGraph.Destinations() {
+    override fun associate() = associate { FirstSampleScreen() }
+}
 
-when (val destination = navigationState.value.currentDestination) {
-    // ...
-    is SecondSampleScreen -> SecondSampleScreen(navigationManager, destination.text)
-    // ...
+@Parcelize
+data class SecondSampleDestination(val text: String) : ComposeNavigationGraph.Destinations() {
+    override fun associate() = associate { destination ->
+        SecondSampleScreen((destination as SecondSampleDestination).text)
+    }
+}
+
+//add Navigation function in composable block
+Navigation(
+    navigationManager = rememberNavigationManager(
+        NavigationState(
+            NavigationHost(
+                hostName = Hosts.ROOT,
+                initialDestination = SampleDestination
+            )
+        )
+    )
+) {
+    //subscribe to calling screens from the navigation graph when the state changes
+    NavigationGraph.Screen(rememberCurrentDestination())
 }
 ```
 

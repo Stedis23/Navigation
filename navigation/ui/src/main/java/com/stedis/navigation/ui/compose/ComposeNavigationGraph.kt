@@ -13,7 +13,7 @@ open class ComposeNavigationGraph(private val associationManager: ComposeAssocia
         associationManager.getAssociation(destination).invoke()
     }
 
-    abstract class Destinations : Destination, Parcelable {
+    abstract class Destinations : Destination {
 
         private lateinit var associationManager: ComposeAssociationManager
 
