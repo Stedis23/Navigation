@@ -3,12 +3,16 @@ package com.stedis.navigation.ui.compose
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import com.stedis.navigation.core.BackCommand
 import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationManager
@@ -51,6 +55,35 @@ public fun Navigation(
 
     CompositionLocalProvider(
         LocalNavigationManager provides navigationManager,
-        content,
     )
+    {
+        val saveableStateHolder = rememberSaveableStateHolder()
+        val savedKeys = rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
+
+        LaunchedEffect(navigationManager.currentState) {
+            val keys = navigationManager.currentState.hosts.flatMap { host ->
+                host.store.map { destination -> destination.toString() }
+            }
+
+            val noSaveStateKeys = navigationManager.currentState.hosts.flatMap { host ->
+                host.store.mapNotNull { destination ->
+                    if (isNoSaveStateDestination(destination) && host.store.last() != destination) {
+                        destination.toString()
+                    } else null
+                }
+            }
+
+            val unavailableKeys = savedKeys.value.filterNot { it in keys } + noSaveStateKeys
+            unavailableKeys.forEach { saveableStateHolder.removeState(it) }
+            savedKeys.value = keys
+        }
+
+        saveableStateHolder.SaveableStateProvider(
+            key = rememberCurrentDestination().toString(),
+            content = content
+        )
+    }
 }
+
+private fun isNoSaveStateDestination(destination: Destination): Boolean =
+    destination::class.annotations.filterIsInstance<NoSaveState>().isNotEmpty()
