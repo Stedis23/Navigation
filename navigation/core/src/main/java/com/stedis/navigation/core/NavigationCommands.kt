@@ -3,72 +3,49 @@ package com.stedis.navigation.core
 class ForwardCommand(private val destination: Destination) : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
-        navigationState.buildNewState {
-            updateHosts {
-                navigationState.hosts.map { host ->
-                    if (host.hostName == currentHost.hostName) {
-                        host.buildNewHost {
-                            addDestination(destination)
-                        }
-                    } else {
-                        host
-                    }
-                }
-            }
+        navigationState.buildNewStateWithCurrentHost {
+            addDestination(destination)
         }
 }
 
-class BackCommand() : NavigationCommand {
+object BackCommand : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
-        navigationState.buildNewState {
-            updateHosts {
-                navigationState.hosts.map { host ->
-                    if (host.hostName == currentHost.hostName) {
-                        host.buildNewHost {
-                            popDestination()
-                        }
-                    } else {
-                        host
-                    }
-                }
-            }
+        navigationState.buildNewStateWithCurrentHost {
+            popDestination()
         }
 }
 
 class BackToCommand(private val destination: Destination) : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
-        navigationState.buildNewState {
-            updateHosts {
-                navigationState.hosts.map { host ->
-                    if (host.hostName == currentHost.hostName) {
-                        host.buildNewHost {
-                            popToDestination(destination)
-                        }
-                    } else {
-                        host
-                    }
-                }
-            }
+        navigationState.buildNewStateWithCurrentHost {
+            popToDestination(destination)
         }
 }
 
 class ReplaceCommand(private val destination: Destination) : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
-        navigationState.buildNewState {
-            updateHosts {
-                navigationState.hosts.map { host ->
-                    if (host.hostName == currentHost.hostName) {
-                        host.buildNewHost {
-                            replaceDestination(destination)
-                        }
-                    } else {
-                        host
-                    }
-                }
-            }
+        navigationState.buildNewStateWithCurrentHost {
+            replaceDestination(destination)
+        }
+}
+
+class OnNewRootCommand(private val destination: Destination) : NavigationCommand {
+
+    override fun execute(navigationState: NavigationState): NavigationState =
+        navigationState.buildNewStateWithCurrentHost {
+            popToDestination(store.first())
+            replaceDestination(destination)
+        }
+}
+
+object OnRootCommand : NavigationCommand {
+
+    override fun execute(navigationState: NavigationState): NavigationState =
+        navigationState.buildNewStateWithCurrentHost {
+            popToDestination(store.first())
         }
 }
 
@@ -79,5 +56,3 @@ class ChangeCurrentHostCommand(private val hostName: String) : NavigationCommand
             setCurrentHost(hostName)
         }
 }
-
-

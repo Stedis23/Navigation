@@ -9,6 +9,19 @@ data class NavigationState(
 public fun NavigationState(initialHost: NavigationHost, params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
     NavigationStateBuilder(initialHost).also { if (params != null) it.params() }.build()
 
+public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationState =
+    buildNewState {
+        updateHosts {
+            hosts.map { host ->
+                if (host.hostName == currentHost.hostName) {
+                    host.buildNewHost(params)
+                } else {
+                    host
+                }
+            }
+        }
+    }
+
 public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
     NavigationStateBuilder(hosts.first()).also {
         it.updateHosts { hosts }
@@ -17,7 +30,7 @@ public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> U
 
 class NavigationStateBuilder(initialHost: NavigationHost) {
 
-    private var hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
+    public var hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
         private set
 
     public var currentHost: NavigationHost = initialHost
@@ -43,7 +56,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     public fun Host(hostName: String, initialDestination: Destination, body: (NavigationHostBuilder.() -> Unit)? = null) {
         hosts.forEach {
-            if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
+            require(it.hostName == hostName) { "Multiple hosts have name: $hostName, hostName must be unique."}
         }
         hosts += NavigationHost(hostName, initialDestination, body)
     }
@@ -55,4 +68,3 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             currentDestination = currentDestination,
         )
 }
-

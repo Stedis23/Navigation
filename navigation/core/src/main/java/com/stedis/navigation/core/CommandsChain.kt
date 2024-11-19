@@ -18,4 +18,3 @@ class CommandsChainBuilder(state: NavigationState) {
     public fun build(): NavigationState =
         lastCommand?.execute(currentState) ?: throw error("command chain cannot be empty")
 }
-

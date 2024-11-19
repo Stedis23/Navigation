@@ -4,4 +4,3 @@ interface NavigationCommand {
 
     public fun execute(navigationState: NavigationState): NavigationState
 }
-
