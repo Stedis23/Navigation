@@ -5,5 +5,5 @@ import com.stedis.navigation.core.Destination
 
 interface FragmentDestination : Destination {
 
-    fun createFragment(): Fragment
+    public fun createFragment(): Fragment
 }

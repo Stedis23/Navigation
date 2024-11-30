@@ -5,5 +5,5 @@ import com.stedis.navigation.core.Destination
 
 interface ComposeDestination : Destination {
 
-    val composable: @Composable (Destination) -> Unit
+    public val composable: @Composable (Destination) -> Unit
 }

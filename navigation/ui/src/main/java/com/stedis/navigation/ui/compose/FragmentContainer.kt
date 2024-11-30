@@ -13,7 +13,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 
 @Composable
-fun FragmentContainer(
+public fun FragmentContainer(
     modifier: Modifier = Modifier,
     fragmentManager: FragmentManager,
     commit: FragmentTransaction.(containerId: Int) -> Unit
