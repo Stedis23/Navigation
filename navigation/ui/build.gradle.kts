@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.material)
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.fragment.ktx)
     implementation("io.github.stedis23:navigation-core:0.1.5")
 }
 
