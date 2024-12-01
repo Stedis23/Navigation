@@ -14,7 +14,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.1.9"
+version = "0.2.0"
 
 android {
     namespace = "com.stedis.navigation.compose.ui"
@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation("io.github.stedis23:navigation-core:0.1.9")
+    implementation("io.github.stedis23:navigation-core:0.2.0")
 }
 
 publishing {
