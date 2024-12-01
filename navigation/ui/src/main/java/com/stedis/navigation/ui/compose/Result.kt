@@ -1,17 +1,33 @@
 package com.stedis.navigation.ui.compose
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.compose.runtime.Composable
+
+@SuppressLint("ComposableNaming")
+@Composable
+public fun setResultListener(key: String, body: (Bundle) -> Unit) {
+    val navigationViewModel = getNavigationViewModel()
+    navigationViewModel.resultManager.setResultListener(key, body)
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+public fun sendResult(key: String, result: Bundle) {
+    val navigationViewModel = getNavigationViewModel()
+    navigationViewModel.resultManager.sendResult(key, result)
+}
 
 class ResultManager {
     private val resultsMap = mutableMapOf<String, Bundle>()
     private val listenersMap = mutableMapOf<String, ResultListener>()
 
-    fun sendResult(key: String, result: Bundle) {
+    public fun sendResult(key: String, result: Bundle) {
         resultsMap[key] = result
         listenersMap[key]?.onResult(result)
     }
 
-    fun setResultListener(key: String, body: (Bundle) -> Unit) =
+    public fun setResultListener(key: String, body: (Bundle) -> Unit) =
         object : ResultListener {
             override fun onResult(result: Bundle) {
                 body(result)
@@ -21,17 +37,17 @@ class ResultManager {
             resultsMap[key]?.let { result -> it.onResult(result) }
         }
 
-    fun registerListener(key: String, listener: ResultListener) {
+    public fun registerListener(key: String, listener: ResultListener) {
         listenersMap[key] = listener
 
         resultsMap[key]?.let { listener.onResult(it) }
     }
 
-    fun unregisterListener(key: String) {
+    public fun unregisterListener(key: String) {
         listenersMap.remove(key)
     }
 }
 
 interface ResultListener {
-    fun onResult(result: Bundle)
+    public fun onResult(result: Bundle)
 }

@@ -13,6 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.stedis.navigation.core.BackCommand
 import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationManager
@@ -40,10 +43,17 @@ public fun rememberCurrentDestination(): Destination {
 @NonRestartableComposable
 public fun Navigation(
     navigationManager: NavigationManager,
-    onRootBack: () -> Unit = {},
+    viewModelFactory: ViewModelFactory = DefaultViewModelFactory(),
     backHandlerEnabled: Boolean = true,
+    onRootBack: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    val viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    }
+    val navigationViewModel =
+        ViewModelProvider(viewModelStoreOwner)[NavigationViewModel::class.java]
+
     BackHandler(
         enabled = backHandlerEnabled,
         onBack = {
@@ -56,6 +66,8 @@ public fun Navigation(
     )
 
     CompositionLocalProvider(
+        LocalNavigationViewModel provides navigationViewModel,
+        LocalViewModelFactory provides viewModelFactory,
         LocalNavigationManager provides navigationManager,
     )
     {
@@ -75,8 +87,9 @@ public fun Navigation(
                 }
             }
 
-            val unavailableKeys = savedKeys.value.filterNot { it in keys } + noSaveStateKeys
-            unavailableKeys.forEach { saveableStateHolder.removeState(it) }
+            val unavailableKeys = savedKeys.value.filterNot { it in keys }
+            unavailableKeys.forEach(navigationViewModel::remote)
+            (unavailableKeys + noSaveStateKeys).forEach(saveableStateHolder::removeState)
             savedKeys.value = keys
         }
 
