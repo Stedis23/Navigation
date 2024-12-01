@@ -55,7 +55,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     public fun Host(hostName: String, initialDestination: Destination, body: (NavigationHostBuilder.() -> Unit)? = null) {
         hosts.forEach {
-            require(it.hostName == hostName) { "Multiple hosts have name: $hostName, hostName must be unique."}
+            if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
         }
         hosts += NavigationHost(hostName, initialDestination, body)
     }

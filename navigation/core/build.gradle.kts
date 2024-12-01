@@ -13,7 +13,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.1.6"
+version = "0.1.9"
 
 android {
     namespace = "com.stedis.navigation.core"

@@ -14,7 +14,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.1.6"
+version = "0.1.9"
 
 android {
     namespace = "com.stedis.navigation.compose.ui"
@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation("io.github.stedis23:navigation-core:0.1.6")
+    implementation("io.github.stedis23:navigation-core:0.1.9")
 }
 
 publishing {
@@ -110,7 +110,8 @@ publishing {
         // Список репозиториев куда публикуются артефакты
         repositories {
             // mavenCentral() // Публикация в Maven Central делается через REST API с помошью отдельного плагина
-            mavenLocal() // Ищете файлы в директории ~/.m2/repository
+            mavenLocal()
+            // Ищете файлы в директории ~/.m2/repository
 
             // Репозиторий в build папке корня проекта
             maven(url = uri(rootProject.layout.buildDirectory.file("maven-repo"))) {
