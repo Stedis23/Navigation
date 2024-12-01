@@ -58,7 +58,7 @@ public fun Navigation(
         enabled = backHandlerEnabled,
         onBack = {
             if (navigationManager.currentState.currentHost.store.size > 1) {
-                navigationManager.execute(BackCommand())
+                navigationManager.execute(BackCommand)
             } else {
                 onRootBack()
             }

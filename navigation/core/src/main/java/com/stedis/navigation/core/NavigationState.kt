@@ -41,9 +41,8 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     public fun updateHosts(body: NavigationStateBuilder.() -> List<NavigationHost>) {
         val newHosts = body()
-        updateCurrentHost(currentHost.hostName, newHosts)
-        this.hosts.clear()
-        this.hosts.addAll(newHosts)
+        hosts = newHosts.toMutableList()
+        updateCurrentHost(currentHost.hostName, hosts)
     }
 
     public fun setCurrentHost(hostName: String) {
