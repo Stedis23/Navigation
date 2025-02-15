@@ -16,7 +16,7 @@ public fun NavigationManager.saveState(): Bundle? {
         this.currentState.hosts.forEach {
             hosts.add(it.hostName)
             val store = arrayListOf<Parcelable>()
-            it.store.forEach { destination ->
+            it.stack.forEach { destination ->
                 store.add(destination as Parcelable)
             }
 
@@ -45,7 +45,7 @@ public fun restoreState(bundle: Bundle?): NavigationState {
                 NavigationHost(
                     hostName = it,
                     currentDestination = store.last(),
-                    store = store
+                    stack = store
                 )
             )
         }

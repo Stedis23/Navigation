@@ -36,7 +36,7 @@ class OnNewRootCommand(private val destination: Destination) : NavigationCommand
 
     override fun execute(navigationState: NavigationState): NavigationState =
         navigationState.buildNewStateWithCurrentHost {
-            popToDestination(store.first())
+            popToDestination(stack.first())
             replaceDestination(destination)
         }
 }
@@ -45,7 +45,7 @@ object OnRootCommand : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
         navigationState.buildNewStateWithCurrentHost {
-            popToDestination(store.first())
+            popToDestination(stack.first())
         }
 }
 
