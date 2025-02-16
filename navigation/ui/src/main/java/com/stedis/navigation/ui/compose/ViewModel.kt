@@ -9,15 +9,15 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-inline fun <reified VM : ViewModel> ViewModel(): VM {
+inline fun <reified VM : ViewModel> ViewModel(factory: ViewModelFactory? = null): VM {
     val navigationViewModel = getNavigationViewModel()
-    val factory = getViewModelFactory()
+    val viewModelFactory = factory ?: getViewModelFactory()
     return viewModel(
         viewModelStoreOwner = navigationViewModel.getViewModelStoreOwner(
             rememberCurrentDestination().toString()
         )
     ) {
-        factory.create(VM::class.java)
+        viewModelFactory.create(VM::class.java)
     }
 }
 
