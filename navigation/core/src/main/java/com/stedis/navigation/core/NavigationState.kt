@@ -16,6 +16,14 @@ data class NavigationState(
 /**
  * Creates a new instance of [NavigationState].
  *
+ * Example of using `NavigationState`:
+ * ```
+ * val navigationState = NavigationState(initialHost = mainHost)){
+ *     Host(articlesHost)
+ *     Host(musicHost)
+ * }
+ *```
+ *
  * @param initialHost The initial navigation host to set.
  * @param params An optional lambda function to configure the [NavigationStateBuilder].
  *

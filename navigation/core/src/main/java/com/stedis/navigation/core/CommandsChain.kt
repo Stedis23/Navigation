@@ -4,11 +4,7 @@ package com.stedis.navigation.core
  * Creates a chain of navigation commands based on the provided initial navigation state.
  * This allows for composing new commands that can handle various scenarios for state changes.
  *
- * @param state The initial navigation state to start the command chain.
- * @param body A lambda function that defines the sequence of commands to be executed.
- * @return A new [NavigationState] resulting from the execution of the command chain.
- *
- * example of using [CommandsChain]:
+ * Example of using [CommandsChain]:
  * ```
  * object SampleCommand : NavigationCommand {
  *
@@ -19,6 +15,11 @@ package com.stedis.navigation.core
  *          }
  *      }
  * ```
+ *
+ * @param state The initial navigation state to start the command chain.
+ * @param body A lambda function that defines the sequence of commands to be executed.
+ *
+ * @return A new [NavigationState] resulting from the execution of the command chain.
  */
 public fun CommandsChain(state: NavigationState, body: CommandsChainBuilder.() -> NavigationCommand): NavigationState =
     CommandsChainBuilder(state).also { it.lastCommand = it.body() }.build()

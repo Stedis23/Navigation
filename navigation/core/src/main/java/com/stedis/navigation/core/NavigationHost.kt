@@ -33,6 +33,14 @@ data class NavigationHost(
 /**
  * Creates a new [NavigationHost] instance with the given host name and initial destination.
  *
+ * Example of using `NavigationHost`:
+ * ```
+ * val mainHost = NavigationHost(hostName = "main", initialDestination = RootDestination) {
+ *     addDestination(FirstSampleDestination())
+ *     addDestination(SecondSampleDestination())
+ * }
+ *```
+ *
  * @param hostName The unique name of the navigation host.
  * @param initialDestination The initial destination to add to the host.
  * @param params Optional configuration block for the host.
