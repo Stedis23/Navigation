@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Navigation"
 include(":navigation:core")
-include(":navigation:ui")
+include(":navigation:compose")

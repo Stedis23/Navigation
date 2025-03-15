@@ -1,4 +1,4 @@
-package com.stedis.navigation.ui.compose
+package com.stedis.navigation.compose
 
 import androidx.fragment.app.Fragment
 import com.stedis.navigation.core.Destination

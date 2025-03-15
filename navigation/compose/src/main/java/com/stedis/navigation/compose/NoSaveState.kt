@@ -1,4 +1,4 @@
-package com.stedis.navigation.ui.compose
+package com.stedis.navigation.compose
 
 /**
  * Annotation that indicates that the state of a [Destination] should not be saved

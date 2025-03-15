@@ -1,4 +1,4 @@
-package com.stedis.navigation.ui.compose
+package com.stedis.navigation.compose
 
 import android.view.View
 import androidx.compose.runtime.Composable

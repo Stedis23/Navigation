@@ -17,7 +17,7 @@ group = "io.github.stedis23"
 version = "0.2.0"
 
 android {
-    namespace = "com.stedis.navigation.compose.ui"
+    namespace = "com.stedis.navigation.compose"
     compileSdk = 35
 
     defaultConfig {
@@ -71,7 +71,7 @@ publishing {
             }
 
             groupId = project.group.toString()
-            artifactId = "navigation-compose-ui"
+            artifactId = "navigation-compose"
             version = project.version.toString()
 
             pom {

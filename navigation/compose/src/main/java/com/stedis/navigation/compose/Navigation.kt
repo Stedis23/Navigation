@@ -1,16 +1,11 @@
-package com.stedis.navigation.ui.compose
+package com.stedis.navigation.compose
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.lifecycle.ViewModelProvider
@@ -19,7 +14,6 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.stedis.navigation.core.BackCommand
 import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationManager
-import com.stedis.navigation.core.NavigationState
 import com.stedis.navigation.core.execute
 
 /**
