@@ -22,23 +22,6 @@ import com.stedis.navigation.core.NavigationManager
 import com.stedis.navigation.core.NavigationState
 import com.stedis.navigation.core.execute
 
-public val LocalNavigationManager: ProvidableCompositionLocal<NavigationManager> =
-    compositionLocalOf { error("LocalNavigationManager must be called inside Navigation()") }
-
-@Composable
-public fun rememberNavigationState(): NavigationState {
-    val navigationManager = LocalNavigationManager.current
-    val state = navigationManager.stateFlow.collectAsState()
-    val remState by remember { state }
-    return remState
-}
-
-@Composable
-public fun rememberCurrentDestination(): Destination {
-    val state = rememberNavigationState()
-    return state.currentDestination
-}
-
 @Composable  
 @NonRestartableComposable
 public fun Navigation(
