@@ -39,11 +39,11 @@ public fun rememberCurrentDestination(): Destination {
     return state.currentDestination
 }
 
-@Composable
+@Composable  
 @NonRestartableComposable
 public fun Navigation(
     navigationManager: NavigationManager,
-    viewModelFactory: ViewModelFactory = DefaultViewModelFactory(),
+    defaultViewModelFactory: ViewModelFactory = DefaultViewModelFactory(),
     backHandlerEnabled: Boolean = true,
     onRootBack: () -> Unit = {},
     content: @Composable () -> Unit,
@@ -67,7 +67,7 @@ public fun Navigation(
 
     CompositionLocalProvider(
         LocalNavigationViewModel provides navigationViewModel,
-        LocalViewModelFactory provides viewModelFactory,
+        LocalViewModelFactory provides defaultViewModelFactory,
         LocalNavigationManager provides navigationManager,
     )
     {
