@@ -13,7 +13,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.2.0"
+version = "0.4.0"
 
 android {
     namespace = "com.stedis.navigation.core"
@@ -81,7 +81,7 @@ publishing {
 
                 developers {
                     developer {
-                        id = "Sredis23"
+                        id = "Stedis23"
                         name = "Stepan Tokarev"
                         email = "stedis02@gmail.com"
                     }
@@ -128,7 +128,7 @@ mavenPublishing {
 
         developers {
             developer {
-                id = "Sredis23"
+                id = "Stedis23"
                 name = "Stepan Tokarev"
                 email = "stedis02@gmail.com"
             }

@@ -99,7 +99,7 @@ public fun Navigation(
     BackHandler(
         enabled = backHandlerEnabled,
         onBack = {
-            if (navigationManager.currentState.currentHost.store.size > 1) {
+            if (navigationManager.currentState.currentHost.stack.size > 1) {
                 navigationManager.execute(BackCommand)
             } else {
                 onRootBack()
@@ -118,12 +118,12 @@ public fun Navigation(
 
         LaunchedEffect(navigationManager.currentState) {
             val keys = navigationManager.currentState.hosts.flatMap { host ->
-                host.store.map { destination -> destination.toString() }
+                host.stack.map { destination -> destination.toString() }
             }
 
             val noSaveStateKeys = navigationManager.currentState.hosts.flatMap { host ->
-                host.store.mapNotNull { destination ->
-                    if (isNoSaveStateDestination(destination) && host.store.last() != destination) {
+                host.stack.mapNotNull { destination ->
+                    if (isNoSaveStateDestination(destination) && host.stack.last() != destination) {
                         destination.toString()
                     } else null
                 }
