@@ -45,8 +45,8 @@ public fun NavigationState(
 public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationState =
     buildNewState {
         updateHosts {
-            hosts.map { host ->
-                if (host.hostName == currentHost.hostName) {
+            this@buildNewState.hosts.map { host ->
+                if (host.hostName == this@buildNewState.currentHost.hostName) {
                     host.buildNewHost(params)
                 } else {
                     host
@@ -63,8 +63,8 @@ public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostB
  * @return A new instance of [NavigationState].
  */
 public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
-    NavigationStateBuilder(hosts.first()).also {
-        it.updateHosts { hosts }
+    NavigationStateBuilder(currentHost).also {
+        it.updateHosts { this@buildNewState.hosts }
         if (params != null) it.params()
     }.build()
 
