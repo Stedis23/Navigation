@@ -1,6 +1,8 @@
 package com.stedis.navigation.compose
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 /**
  * Composable function that displays the provided Compose destination screen.
@@ -16,6 +18,11 @@ import androidx.compose.runtime.Composable
  * a valid composable function.
  */
 @Composable
-public fun ComposeScreen(destination: ComposeDestination) {
-    destination.composable.invoke(destination)
+public fun Pane(
+    destination: ComposeDestination,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) {
+        destination.composable.invoke(destination)
+    }
 }
