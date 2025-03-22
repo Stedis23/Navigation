@@ -109,7 +109,7 @@ private fun ToolBar(onClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = stringResource(R.string.main_friends),
+                text = stringResource(R.string.more_info),
                 modifier = Modifier.align(Alignment.Center),
             )
         }
