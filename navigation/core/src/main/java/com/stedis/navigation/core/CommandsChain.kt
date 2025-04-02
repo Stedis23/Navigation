@@ -21,6 +21,7 @@ package com.stedis.navigation.core
  *
  * @return A new [NavigationState] resulting from the execution of the command chain.
  */
+@Suppress("FunctionName")
 public fun CommandsChain(state: NavigationState, body: CommandsChainBuilder.() -> NavigationCommand): NavigationState =
     CommandsChainBuilder(state).also { it.lastCommand = it.body() }.build()
 
@@ -53,6 +54,26 @@ class CommandsChainBuilder(state: NavigationState) {
     public infix fun NavigationCommand.then(other: NavigationCommand): NavigationCommand {
         currentState = this.execute(currentState)
         return other
+    }
+
+    /**
+     * This method allows you to maintain the style of writing a chain.
+     * Allows chaining a [NavigationState] with a subsequent [NavigationCommand].
+     *
+     * @param other The next navigation command to be executed.
+     *
+     * @return The next [NavigationCommand].
+     */
+    public infix fun NavigationState.then(other: NavigationCommand): NavigationCommand = other
+
+    /**
+     * Executes the current navigation command and updates the current state with the result.
+     *
+     * @return The updated [NavigationState] after executing the command.
+     */
+    public fun NavigationCommand.executeWithUpdateCurrentState(): NavigationState {
+        currentState = this.execute(currentState)
+        return currentState
     }
 
     /**
