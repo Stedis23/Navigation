@@ -1,5 +1,7 @@
 package com.stedis.navigation.core
 
+import kotlin.reflect.KClass
+
 class ForwardCommand(private val destination: Destination) : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
@@ -16,11 +18,11 @@ object BackCommand : NavigationCommand {
         }
 }
 
-class BackToCommand(private val destination: Destination) : NavigationCommand {
+class BackToCommand(private val destinationClass: KClass<out Destination>) : NavigationCommand {
 
     override fun execute(navigationState: NavigationState): NavigationState =
         navigationState.buildNewStateWithCurrentHost {
-            popToDestination(destination)
+            popToDestination(destinationClass)
         }
 }
 
