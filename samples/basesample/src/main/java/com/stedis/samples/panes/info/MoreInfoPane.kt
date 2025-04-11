@@ -5,9 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,9 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,79 +45,90 @@ fun MoreInfoPane() {
 
     BackHandler { navigationManager.execute(BackToMainCommand) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(20.dp),
-            )
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        ToolBar(onClick = { navigationManager.execute(BackToMainCommand) })
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(R.drawable.info),
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-            )
-
-            Text(
-                text = stringResource(R.string.more_info_description),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-            )
+    Scaffold(
+        topBar = {
+            ToolBar(onClick = { navigationManager.execute(BackToMainCommand) })
         }
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(20.dp),
+                )
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
 
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(R.drawable.info),
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                )
 
-        Column {
-            Button(
-                onClick = { navigationManager.execute(ForwardCommand(WebPageDestination(GITHUB_URL))) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(R.string.go_to_github))
+                Text(
+                    text = stringResource(R.string.more_info_description),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                )
             }
 
-            Button(
-                onClick = { navigationManager.execute(BackToMainCommand) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors()
-                    .copy(containerColor = MaterialTheme.colorScheme.secondary),
-            ) {
-                Text(text = stringResource(R.string.back))
+            Spacer(modifier = Modifier.weight(1f))
+
+            Column {
+                Button(
+                    onClick = {
+                        navigationManager.execute(
+                            ForwardCommand(
+                                WebPageDestination(
+                                    GITHUB_URL
+                                )
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(text = stringResource(R.string.go_to_github))
+                }
+
+                Button(
+                    onClick = { navigationManager.execute(BackToMainCommand) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors()
+                        .copy(containerColor = MaterialTheme.colorScheme.secondary),
+                ) {
+                    Text(text = stringResource(R.string.back))
+                }
             }
         }
     }
+
+
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ToolBar(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.arrow_back),
-            contentDescription = null,
-            modifier = Modifier.clickable { onClick() },
-        )
-
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.more_info),
-                modifier = Modifier.align(Alignment.Center),
+    CenterAlignedTopAppBar(
+        title = {
+            Text(text = stringResource(R.string.more_info))
+        },
+        navigationIcon = {
+            Icon(
+                painter = painterResource(R.drawable.arrow_back),
+                contentDescription = null,
+                modifier = Modifier.clickable { onClick() }
             )
-        }
-    }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+            .copy(containerColor = MaterialTheme.colorScheme.background)
+    )
 }
