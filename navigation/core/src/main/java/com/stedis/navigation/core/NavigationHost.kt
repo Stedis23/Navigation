@@ -166,9 +166,9 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
         apply {
             checkDestination(destination)
             checkStackSize()
-            val index = if (_stack.any { it == destination })
+            val index = if (_stack.any { it == destination }) {
                 stack.indexOf(destination)
-            else throw Error("stack does not contain destination ${destination::class.simpleName}")
+            } else throw Error("stack does not contain destination ${destination::class.simpleName}")
 
             _stack = _stack.dropLast(_stack.size - index - ONE).toMutableList()
         }
@@ -200,6 +200,68 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
             currentDestination = currentDestination,
             stack = stack,
         )
+
+    /**
+     * Finds the first [Destination] of the specified class in the stack.
+     *
+     * @param destinationClass The class of the destination to search for.
+     *
+     * @return The first [Destination] instance of the specified class, or
+     *         null if no such destination exists in the stack.
+     */
+    public fun findFirst(destinationClass: KClass<out Destination>): Destination? {
+        val index = _stack.indexOfFirst { it::class == destinationClass }
+        if (index == NOT_FOUND_INDEX) return null
+        return _stack[index]
+    }
+
+    /**
+     * Finds the first occurrence of the specified [Destination] in the stack.
+     *
+     * @param destination The [Destination] instance to search for.
+     *
+     * @return The first matching [Destination] instance, or null if the
+     *         specified destination does not exist in the stack.
+     */
+    public fun findFirst(destination: Destination): Destination? {
+        val index = if (_stack.any { it == destination }) {
+            _stack.indexOf(destination)
+        } else return null
+
+        return _stack[index]
+    }
+
+    /**
+     * Finds the last [Destination] of the specified class in the stack.
+     *
+     * @param destinationClass The class of the destination to search for.
+     *
+     * @return The last [Destination] instance of the specified class, or
+     *         null if no such destination exists in the stack.
+     */
+    public fun findLast(destinationClass: KClass<out Destination>): Destination? {
+        val index = _stack.indexOfLast { it::class == destinationClass }
+        if (index == NOT_FOUND_INDEX) return null
+        return _stack[index]
+    }
+
+    /**
+     * Finds the last occurrence of the specified [Destination] in the stack.
+     *
+     * @param destination The [Destination] instance to search for.
+     *
+     * @return The last matching [Destination] instance, or null if the
+     *         specified destination does not exist in the stack.
+     */
+    public fun findLast(destination: Destination): Destination? {
+        val index = if (_stack.any { it == destination }) {
+            val reverseStack = _stack
+            reverseStack.reverse()
+            reverseStack.indexOf(destination)
+        } else return null
+
+        return _stack[index]
+    }
 
     companion object {
         private const val ONE = 1
