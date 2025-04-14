@@ -1,6 +1,36 @@
 package com.stedis.navigation.core
 
 /**
+ * Creates a new [NavigationCommand] that represents a chain of commands.
+ *
+ * This function allows you to define a sequence of navigation commands
+ * that can be executed in order. The provided [body] lambda is used
+ * to build the command chain utilizing the [CommandsChainBuilder].
+ *
+ * Example of using [CommandsChain]:
+ * ```
+ * navigationManager.execute(
+ *     CommandsChain {
+ *         ReplaceCommand(FirstSampleScreen()) then
+ *             ForwardCommand(SecondSampleScreen())
+ *     }
+ * )
+ * ```
+ *
+ * @param body A lambda function that defines the sequence of commands
+ *             to be executed as part of the command chain.
+ *
+ * @return A new instance of [NavigationCommand] representing the command chain.
+ */
+@Suppress("FunctionName")
+public fun CommandsChain(body: CommandsChainBuilder.() -> NavigationCommand) =
+    object : NavigationCommand {
+
+        override fun execute(navigationState: NavigationState): NavigationState =
+            CommandsChain(navigationState, body)
+    }
+
+/**
  * Creates a chain of navigation commands based on the provided initial navigation state.
  * This allows for composing new commands that can handle various scenarios for state changes.
  *
@@ -22,7 +52,10 @@ package com.stedis.navigation.core
  * @return A new [NavigationState] resulting from the execution of the command chain.
  */
 @Suppress("FunctionName")
-public fun CommandsChain(state: NavigationState, body: CommandsChainBuilder.() -> NavigationCommand): NavigationState =
+public fun CommandsChain(
+    state: NavigationState,
+    body: CommandsChainBuilder.() -> NavigationCommand
+): NavigationState =
     CommandsChainBuilder(state).also { it.lastCommand = it.body() }.build()
 
 /**
