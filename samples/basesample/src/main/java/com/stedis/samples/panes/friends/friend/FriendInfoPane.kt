@@ -30,9 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stedis.navigation.compose.LocalNavigationManager
-import com.stedis.navigation.core.BackCommand
-import com.stedis.navigation.core.execute
 import com.stedis.samples.R
+import com.stedis.samples.navigation.ext.close
 
 
 @Composable
@@ -43,7 +42,7 @@ fun FriendInfoPane(friendId: String) {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ToolBar(onClick = { navigationManager.execute(BackCommand) })
+        ToolBar(onClick = { navigationManager.close() })
 
         FriendProfile(
             friendName = stringResource(R.string.friend) + friendId,

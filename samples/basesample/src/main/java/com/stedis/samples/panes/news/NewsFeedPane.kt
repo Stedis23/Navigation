@@ -78,11 +78,13 @@ private fun NewsCard(newsId: String) {
                 .background(MaterialTheme.colorScheme.primaryContainer)
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
             text = stringResource(R.string.news_title) + newsId,
             fontSize = 18.sp,
             modifier = Modifier.padding(8.dp),
         )
+
         Text(
             text = stringResource(R.string.news_description),
             fontSize = 14.sp,

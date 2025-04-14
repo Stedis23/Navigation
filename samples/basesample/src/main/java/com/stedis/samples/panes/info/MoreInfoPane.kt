@@ -31,11 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.stedis.navigation.compose.LocalNavigationManager
-import com.stedis.navigation.core.ForwardCommand
-import com.stedis.navigation.core.execute
 import com.stedis.samples.R
-import com.stedis.samples.navigation.commands.BackToMainCommand
 import com.stedis.samples.navigation.destinations.WebPageDestination
+import com.stedis.samples.navigation.ext.close
+import com.stedis.samples.navigation.ext.open
 
 private const val GITHUB_URL = "https://github.com/Stedis23/Navigation"
 
@@ -43,11 +42,11 @@ private const val GITHUB_URL = "https://github.com/Stedis23/Navigation"
 fun MoreInfoPane() {
     val navigationManager = LocalNavigationManager.current
 
-    BackHandler { navigationManager.execute(BackToMainCommand) }
+    BackHandler { navigationManager.close() }
 
     Scaffold(
         topBar = {
-            ToolBar(onClick = { navigationManager.execute(BackToMainCommand) })
+            ToolBar(onClick = { navigationManager.close() })
         }
     ) {
         Column(
@@ -85,22 +84,14 @@ fun MoreInfoPane() {
 
             Column {
                 Button(
-                    onClick = {
-                        navigationManager.execute(
-                            ForwardCommand(
-                                WebPageDestination(
-                                    GITHUB_URL
-                                )
-                            )
-                        )
-                    },
+                    onClick = { navigationManager.open(WebPageDestination(GITHUB_URL)) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = stringResource(R.string.go_to_github))
                 }
 
                 Button(
-                    onClick = { navigationManager.execute(BackToMainCommand) },
+                    onClick = { navigationManager.close() },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors()
                         .copy(containerColor = MaterialTheme.colorScheme.secondary),
@@ -110,8 +101,6 @@ fun MoreInfoPane() {
             }
         }
     }
-
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

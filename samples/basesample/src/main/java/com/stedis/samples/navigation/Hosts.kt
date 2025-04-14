@@ -1,7 +1,8 @@
 package com.stedis.samples.navigation
 
 enum class Hosts {
-    MAIN,
+    GLOBAL,
+    MAIN_SUB_HOSTS,
     FRIENDS,
     NEWS,
 }

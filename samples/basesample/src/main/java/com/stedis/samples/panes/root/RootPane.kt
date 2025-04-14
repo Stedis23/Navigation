@@ -24,7 +24,7 @@ fun RootPane(
         navigationManager = rememberNavigationManager(
             NavigationState(
                 NavigationHost(
-                    hostName = Hosts.MAIN.name,
+                    hostName = Hosts.GLOBAL.name,
                     initialDestination = WelcomeDestination,
                 )
             )
@@ -33,7 +33,7 @@ fun RootPane(
     ) {
         val navigationManager = LocalNavigationManager.current
 
-        when (val destination = rememberCurrentDestination(Hosts.MAIN.name)) {
+        when (val destination = rememberCurrentDestination(Hosts.GLOBAL.name)) {
             is WebPageDestination -> {
                 onOpenWebPage(destination.url)
                 navigationManager.execute(BackCommand)

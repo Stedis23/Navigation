@@ -1,5 +1,6 @@
 package com.stedis.samples.panes.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,15 +29,20 @@ import com.stedis.navigation.compose.ComposeDestination
 import com.stedis.navigation.compose.LocalNavigationManager
 import com.stedis.navigation.compose.Pane
 import com.stedis.navigation.compose.rememberCurrentDestination
-import com.stedis.navigation.core.execute
+import com.stedis.navigation.core.NavigationManager
 import com.stedis.samples.R
 import com.stedis.samples.navigation.Hosts
-import com.stedis.samples.navigation.commands.ChangeCurrentSubHostOnMainCommand
-import com.stedis.samples.navigation.commands.ForwardToMoreInfoCommand
+import com.stedis.samples.navigation.destinations.SubHostsHistory
+import com.stedis.samples.navigation.ext.changeCurrentSubHost
+import com.stedis.samples.navigation.ext.close
+import com.stedis.samples.navigation.ext.open
+import com.stedis.samples.panes.info.MoreInfoDestination
 
 @Composable
 fun MainPane(currentSubHost: String) {
     val navigationManager = LocalNavigationManager.current
+
+    MainBackHandler(navigationManager)
 
     Column {
         Column(
@@ -50,10 +56,23 @@ fun MainPane(currentSubHost: String) {
 
         BottomBar(
             currentPage = currentSubHost,
-            onFriendsClick = { navigationManager.execute(ChangeCurrentSubHostOnMainCommand(Hosts.FRIENDS.name)) },
-            onNewsClick = { navigationManager.execute(ChangeCurrentSubHostOnMainCommand(Hosts.NEWS.name)) },
-            onMoreInfoClick = { navigationManager.execute(ForwardToMoreInfoCommand) }
+            onFriendsClick = { navigationManager.changeCurrentSubHost(Hosts.FRIENDS.name) },
+            onNewsClick = { navigationManager.changeCurrentSubHost(Hosts.NEWS.name) },
+            onMoreInfoClick = { navigationManager.open(MoreInfoDestination, Hosts.GLOBAL.name) }
         )
+    }
+}
+
+@Composable
+private fun MainBackHandler(navigationManager: NavigationManager) {
+    val subHostsHistory =
+        navigationManager.currentState.hosts.find { it.hostName == Hosts.MAIN_SUB_HOSTS.name }?.currentDestination
+            ?: error("host: MAIN_HOSTS don`t exist")
+
+    if ((subHostsHistory as SubHostsHistory).hosts.size > 1) {
+        BackHandler {
+            navigationManager.close()
+        }
     }
 }
 
@@ -95,7 +114,7 @@ private fun BottomBar(
             Icon(
                 painter = painterResource(R.drawable.info),
                 contentDescription = stringResource(R.string.more_info),
-                tint = if (currentPage == Hosts.MAIN.name) {
+                tint = if (currentPage == Hosts.GLOBAL.name) {
                     MaterialTheme.colorScheme.primary
                 } else {
                     MaterialTheme.colorScheme.onBackground

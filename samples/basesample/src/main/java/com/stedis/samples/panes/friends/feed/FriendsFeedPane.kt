@@ -28,9 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stedis.navigation.compose.LocalNavigationManager
-import com.stedis.navigation.core.ForwardCommand
-import com.stedis.navigation.core.execute
 import com.stedis.samples.R
+import com.stedis.samples.navigation.ext.open
 import com.stedis.samples.panes.friends.friend.FriendInfoDestination
 
 @Composable
@@ -51,15 +50,7 @@ fun FriendsFeedPane() {
                 item {
                     FriendCard(
                         name = id.toString(),
-                        onClick = {
-                            navigationManager.execute(
-                                ForwardCommand(
-                                    FriendInfoDestination(
-                                        id.toString()
-                                    )
-                                )
-                            )
-                        }
+                        onClick = { navigationManager.open(FriendInfoDestination(id.toString())) }
                     )
                 }
             }
@@ -104,7 +95,9 @@ private fun FriendCard(
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer),
         )
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Text(
             text = stringResource(R.string.friend) + name,
             fontSize = 18.sp,
