@@ -130,6 +130,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      *
      * @return The current instance of [NavigationStateBuilder].
      */
+    @Suppress("FunctionName")
     public fun Host(
         hostName: String,
         initialDestination: Destination,
@@ -143,6 +144,18 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
         }
 
     /**
+     * Removes a [NavigationHost] from the list of hosts by its host name.
+     *
+     * @param hostName The name of the host to be removed.
+     *
+     * @return The current instance of [NavigationStateBuilder].
+     */
+    public fun removeHost(hostName: String) =
+        apply {
+            hosts.removeIf { it.hostName == hostName }
+        }
+
+    /**
      * Builds a new instance of [NavigationState] using the current state of the builder.
      *
      * @return A new instance of [NavigationState].
@@ -153,4 +166,15 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             currentHost = currentHost,
             currentDestination = currentDestination,
         )
+
+    /**
+     * Searches for a [NavigationHost] by its host name within the list of available hosts.
+     *
+     * @param hostName The name of the host to search for.
+     *
+     * @return The [NavigationHost] instance that matches the specified [hostName],
+     *         or null if no such host exists.
+     */
+    public fun findHost(hostName: String): NavigationHost? =
+        hosts.find { it.hostName == hostName }
 }
