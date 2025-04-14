@@ -3,9 +3,10 @@ package com.stedis.navigation.core
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import com.stedis.navigation.core.NavigationManagerSaverConst.CURRENT_HOST_NAME
-import com.stedis.navigation.core.NavigationManagerSaverConst.HOSTS_NAMES
-import com.stedis.navigation.core.NavigationManagerSaverConst.HOST_STORE
+
+private const val HOSTS_NAMES = "stedis:navigation:saver:hosts_names"
+private const val CURRENT_HOST_NAME = "stedis:navigation:saver:current_host_name"
+private const val HOST_STORE = "stedis:navigation:saver:host:"
 
 public fun NavigationManager.saveState(): Bundle? {
     var bundle: Bundle? = null
@@ -60,11 +61,4 @@ public fun restoreState(bundle: Bundle?): NavigationState {
         currentHost = currentHost,
         currentDestination = currentHost.currentDestination
     )
-}
-
-private object NavigationManagerSaverConst {
-
-    const val HOSTS_NAMES = "stedis:navigation:saver:hosts_names"
-    const val CURRENT_HOST_NAME = "stedis:navigation:saver:current_host_name"
-    const val HOST_STORE = "stedis:navigation:saver:host:"
 }
