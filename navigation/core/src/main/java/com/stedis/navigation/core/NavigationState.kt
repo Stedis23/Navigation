@@ -69,6 +69,17 @@ public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> U
     }.build()
 
 /**
+ * Searches for a [NavigationHost] by its host name within the list of available hosts.
+ *
+ * @param hostName The name of the host to search for.
+ *
+ * @return The [NavigationHost] instance that matches the specified [hostName],
+ *         or null if no such host exists.
+ */
+public fun NavigationState.findHost(hostName: String): NavigationHost? =
+    hosts.find { it.hostName == hostName }
+
+/**
  * Builder class for creating and modifying instances of [NavigationState].
  *
  * @property initialHost The initial navigation host to start with.
@@ -166,15 +177,4 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             currentHost = currentHost,
             currentDestination = currentDestination,
         )
-
-    /**
-     * Searches for a [NavigationHost] by its host name within the list of available hosts.
-     *
-     * @param hostName The name of the host to search for.
-     *
-     * @return The [NavigationHost] instance that matches the specified [hostName],
-     *         or null if no such host exists.
-     */
-    public fun findHost(hostName: String): NavigationHost? =
-        hosts.find { it.hostName == hostName }
 }
