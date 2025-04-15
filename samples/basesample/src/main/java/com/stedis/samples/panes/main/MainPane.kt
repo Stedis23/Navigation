@@ -33,6 +33,7 @@ import com.stedis.navigation.core.NavigationManager
 import com.stedis.samples.R
 import com.stedis.samples.navigation.Hosts
 import com.stedis.samples.navigation.destinations.SubHostsHistory
+import com.stedis.samples.navigation.destinations.getSubHostsHistory
 import com.stedis.samples.navigation.ext.changeCurrentSubHost
 import com.stedis.samples.navigation.ext.close
 import com.stedis.samples.navigation.ext.open
@@ -65,10 +66,7 @@ fun MainPane(currentSubHost: String) {
 
 @Composable
 private fun MainBackHandler(navigationManager: NavigationManager) {
-    val subHostsHistory =
-        navigationManager.currentState.hosts.find { it.hostName == Hosts.MAIN_SUB_HOSTS.name }?.currentDestination
-            ?: error("host: MAIN_HOSTS don`t exist")
-
+    val subHostsHistory = navigationManager.currentState.getSubHostsHistory()
     if ((subHostsHistory as SubHostsHistory).hosts.size > 1) {
         BackHandler {
             navigationManager.close()

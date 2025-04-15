@@ -45,6 +45,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
 
-    implementation("io.github.stedis23:navigation-core:0.4.2")
-    implementation("io.github.stedis23:navigation-compose:0.4.2")
+    implementation("io.github.stedis23:navigation-core:0.4.6")
+    implementation("io.github.stedis23:navigation-compose:0.4.6")
 }
