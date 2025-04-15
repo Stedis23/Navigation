@@ -8,10 +8,10 @@ Navigation is a simple way to manage application navigation as a state
 ```kotlin
 
 // Add dependencies to use without UI
-implementation("io.github.stedis23:navigation-core:0.4.5")
+implementation("io.github.stedis23:navigation-core:0.4.6")
 
 // For project with Compose
-implementation("io.github.stedis23:navigation-compose:0.4.5")
+implementation("io.github.stedis23:navigation-compose:0.4.6")
 
 ```
 
