@@ -34,6 +34,14 @@ data class NavigationHost(
      * The stack of destinations.
      */
     val stack: List<Destination>,
+    /**
+     * The list of child navigation hosts.
+     */
+    val children: List<NavigationHost>,
+    /**
+     * The current child navigation host.
+     */
+    val selectedChild: NavigationHost?,
 ) : Parcelable
 
 /**
@@ -153,6 +161,54 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
     private val currentDestination: Destination
         get() = _stack.last()
 
+    private val children = mutableListOf<NavigationHost>()
+
+    private var selectedChild: NavigationHost? = null
+
+    /**
+     * Adds a new child navigation host to the navigation host.
+     *
+     * @param hostName The name of the child host to add.
+     * @param initialDestination The initial destination for the new child host.
+     * @param body An optional lambda function to configure the [NavigationHostBuilder].
+     *
+     * @return The current instance of [NavigationStateBuilder].
+     */
+    @Suppress("FunctionName")
+    public fun Host(
+        hostName: String,
+        initialDestination: Destination,
+        body: (NavigationHostBuilder.() -> Unit)? = null
+    ) =
+        apply {
+            children.forEach {
+                if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
+            }
+
+            if (children.isEmpty()) {
+                setSelectedChild(hostName)
+            }
+
+            children += NavigationHost(hostName, initialDestination, body)
+        }
+
+    /**
+     * Sets the selected child element based on the specified host name.
+     *
+     * This function searches for a child element with the specified host name (`hostName`).
+     * If the child element is found, it is set as the selected one.
+     * If the child element is not found, an error is thrown with a message
+     * indicating that the specified host does not contain the child host.
+     *
+     * @param hostName The name of the child host to be set as selected.
+     *
+     * @throws IllegalArgumentException If no child element with the specified name is found.
+     */
+    public fun setSelectedChild(hostName: String) {
+        selectedChild = children.find { it.hostName == hostName }
+            ?: throw error("navigation host does not contain child host: $hostName")
+    }
+
     /**
      * Updates the stack of destinations.
      *
@@ -267,5 +323,7 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
             hostName = hostName,
             currentDestination = currentDestination,
             stack = stack,
+            children = children,
+            selectedChild = selectedChild,
         )
 }
