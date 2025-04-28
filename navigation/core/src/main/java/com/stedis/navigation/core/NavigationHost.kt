@@ -1,5 +1,7 @@
 package com.stedis.navigation.core
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
 
 private const val ONE = 1
@@ -18,6 +20,7 @@ private const val NOT_FOUND_INDEX = -1
  *
  * The [NavigationHostBuilder] class provides methods for configuring the host and its destinations. See the [NavigationHostBuilder] documentation for details.
  */
+@Parcelize
 data class NavigationHost(
     /**
      * The unique name of the navigation host.
@@ -31,7 +34,7 @@ data class NavigationHost(
      * The stack of destinations.
      */
     val stack: List<Destination>,
-)
+) : Parcelable
 
 /**
  * Creates a new [NavigationHost] instance with the given host name and initial destination.

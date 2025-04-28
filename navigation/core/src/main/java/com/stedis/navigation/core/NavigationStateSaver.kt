@@ -4,7 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 
-private const val HOSTS_NAMES = "stedis:navigation:saver:hosts_names"
+private const val HOSTS = "stedis:navigation:saver:hosts"
 private const val CURRENT_HOST_NAME = "stedis:navigation:saver:current_host_name"
 private const val HOST_STORE = "stedis:navigation:saver:host:"
 
@@ -13,18 +13,12 @@ public fun NavigationManager.saveState(): Bundle? {
 
     if (this.currentState.hosts.isNotEmpty()) {
         bundle = Bundle()
-        val hosts = ArrayList<String>()
+        val hosts = arrayListOf<Parcelable>()
         this.currentState.hosts.forEach {
-            hosts.add(it.hostName)
-            val store = arrayListOf<Parcelable>()
-            it.stack.forEach { destination ->
-                store.add(destination as Parcelable)
-            }
-
-            bundle.putParcelableArrayList(HOST_STORE + it.hostName, store)
+            hosts.add(it as Parcelable)
         }
 
-        bundle.putStringArrayList(HOSTS_NAMES, hosts)
+        bundle.putParcelableArrayList(HOSTS, hosts)
         bundle.putString(CURRENT_HOST_NAME, this.currentState.currentHost.hostName)
     }
 
@@ -36,20 +30,11 @@ public fun restoreState(bundle: Bundle?): NavigationState {
         throw error("state don't was saved")
     }
 
-    val hosts = mutableListOf<NavigationHost>()
-    bundle.getStringArrayList(HOSTS_NAMES)?.forEach {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val store = bundle.getParcelableArrayList(HOST_STORE + it, Destination::class.java)
-                ?: throw error("store don't was saved")
+    var hosts = mutableListOf<NavigationHost>()
 
-            hosts.add(
-                NavigationHost(
-                    hostName = it,
-                    currentDestination = store.last(),
-                    stack = store
-                )
-            )
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        hosts = bundle.getParcelableArrayList(HOSTS, NavigationHost::class.java)
+            ?: throw error("store don't was saved")
     }
 
     val currentHostName = bundle.getString(CURRENT_HOST_NAME)
