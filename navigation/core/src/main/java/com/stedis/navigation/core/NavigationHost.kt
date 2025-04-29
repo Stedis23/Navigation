@@ -203,11 +203,14 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
      * @param hostName The name of the child host to be set as selected.
      *
      * @throws IllegalArgumentException If no child element with the specified name is found.
+     *
+     * @return A new [NavigationHostBuilder] instance.
      */
-    public fun setSelectedChild(hostName: String) {
-        selectedChild = children.find { it.hostName == hostName }
-            ?: throw error("navigation host does not contain child host: $hostName")
-    }
+    public fun setSelectedChild(hostName: String) =
+        apply {
+            selectedChild = children.find { it.hostName == hostName }
+                ?: throw error("navigation host does not contain child host: $hostName")
+        }
 
     /**
      * Updates the children navigation hosts.

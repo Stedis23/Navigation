@@ -1,5 +1,7 @@
 package com.stedis.navigation.core
 
+private const val ONE = 1
+
 /**
  * [NavigationState] represents the global navigation state that holds all information related to navigation.
  *
@@ -212,6 +214,73 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
         this@NavigationStateBuilder.hosts = modifyHost(hosts, path, body).toMutableList()
         return this@NavigationStateBuilder
     }
+
+    /**
+     * Switches the current navigation context to a new state based on the shortest path
+     * derived from the current [TraversalContext].
+     *
+     * This function finds the shortest path in the host tree using the BFS algorithm
+     * based on the hosts and points in the current traversal context. It updates the
+     * hosts in the [NavigationStateBuilder] according to the first host in the path.
+     * If the path consists of only one host, it remains unchanged; otherwise, the
+     * child host corresponding to the next point in the path is selected.
+     *
+     * Example of using perform:
+     * ```
+     * inside("firstHost")
+     *  .inside("secondHost")
+     *  .switch()
+     * ```
+     *
+     * @return The updated [NavigationStateBuilder] instance with the modified hosts.
+     *
+     * @throws IllegalArgumentException If the shortest path cannot be found in the host tree
+     *                                  or if the root host cannot be determined.
+     */
+    public fun TraversalContext.switch(): NavigationStateBuilder {
+        val path: List<String> = findShortestPathBFS(hosts, points)
+            ?: throw error("The given path was not found in the host tree")
+
+        val head = path.first()
+        val root = hosts.find { it.hostName == head } ?: throw error("root host can`t be null")
+
+        this@NavigationStateBuilder.hosts = hosts.map {
+            if (it.hostName == head) {
+                if (path.size == ONE) {
+                    it
+                } else {
+                    root.switchChild(path)
+                }
+            } else {
+                it
+            }
+        }.toMutableList()
+
+        setCurrentHost(head)
+
+        return this@NavigationStateBuilder
+    }
+
+    private fun NavigationHost.switchChild(path: List<String>): NavigationHost {
+        val newPath = path.drop(ONE)
+        val newChildren = children.map {
+            if (it.hostName == newPath.first()) {
+                if (newPath.size == ONE) {
+                    it
+                } else {
+                    it.switchChild(newPath)
+                }
+            } else {
+                it
+            }
+        }
+
+        return copy(
+            children = newChildren,
+            selectedChild = newChildren.find { it.hostName == newPath.first() }
+        )
+    }
+
 
     /**
      * Builds a new instance of [NavigationState] using the current state of the builder.
