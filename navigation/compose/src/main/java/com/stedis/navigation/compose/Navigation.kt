@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.stedis.navigation.core.BackCommand
 import com.stedis.navigation.core.Destination
+import com.stedis.navigation.core.NavigationHost
 import com.stedis.navigation.core.NavigationManager
 import com.stedis.navigation.core.execute
 
@@ -81,7 +83,7 @@ import com.stedis.navigation.core.execute
  * it should not be restarted during recompositions, ensuring consistent
  * navigation behavior.
  */
-@Composable  
+@Composable
 @NonRestartableComposable
 public fun Navigation(
     navigationManager: NavigationManager,
@@ -107,21 +109,25 @@ public fun Navigation(
         },
     )
 
+    val saveableStateHolder = rememberSaveableStateHolder()
+
     CompositionLocalProvider(
         LocalNavigationViewModel provides navigationViewModel,
         LocalViewModelFactory provides defaultViewModelFactory,
         LocalNavigationManager provides navigationManager,
+        LocalSaveableStateHolder provides saveableStateHolder,
     )
     {
-        val saveableStateHolder = rememberSaveableStateHolder()
-        val savedKeys = rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
 
-        LaunchedEffect(navigationManager.currentState) {
-            val keys = navigationManager.currentState.hosts.flatMap { host ->
-                host.stack.map { destination -> destination.toString() }
-            }
+        val savedKeys = rememberSaveable { mutableStateOf<Set<String>>(emptySet()) }
 
-            val noSaveStateKeys = navigationManager.currentState.hosts.flatMap { host ->
+        val state = navigationManager.stateFlow.collectAsState()
+        LaunchedEffect(key1 = state.value) {
+            val keys = state.value.hosts.flatMap { host ->
+                collectKeys(host)
+            }.toSet()
+
+            val noSaveStateKeys = state.value.hosts.flatMap { host ->
                 host.stack.mapNotNull { destination ->
                     if (isNoSaveStateDestination(destination) && host.stack.last() != destination) {
                         destination.toString()
@@ -135,11 +141,31 @@ public fun Navigation(
             savedKeys.value = keys
         }
 
-        saveableStateHolder.SaveableStateProvider(
-            key = rememberCurrentDestination().toString(),
-            content = content
-        )
+        content()
     }
+}
+
+private fun collectKeys(host: NavigationHost): Set<String> {
+    val keys = host.stack.map { destination -> destination.toString() }.toMutableSet()
+    host.children.forEach { child ->
+        keys.addAll(collectKeys(child))
+    }
+
+    return keys
+}
+
+private fun collectNoSaveStateKeys(host: NavigationHost): Set<String> {
+    val keys = host.stack.mapNotNull { destination ->
+        if (isNoSaveStateDestination(destination) && host.stack.last() != destination) {
+            destination.toString()
+        } else null
+    }.toMutableSet()
+
+    host.children.forEach { child ->
+        keys.addAll(collectNoSaveStateKeys(child))
+    }
+
+    return keys
 }
 
 private fun isNoSaveStateDestination(destination: Destination): Boolean =
