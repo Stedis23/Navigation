@@ -167,6 +167,53 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
         }
 
     /**
+     * Creates a new [TraversalContext] with the current instance of [NavigationStateBuilder] and a specified host name.
+     *
+     * This infix function adds the specified host name as the first point in the traversal context.
+     *
+     * @param hostName The name of the host to be added to the traversal context.
+     *
+     * @return A new [TraversalContext] instance containing the current hosts and the specified host name as the first point.
+     */
+    public infix fun inside(hostName: String): TraversalContext =
+        TraversalContext(
+            hosts = hosts,
+            points = listOf(hostName),
+        )
+
+    /**
+     * Performs a navigation operation based on the current [TraversalContext] and a provided
+     * configuration block for a [NavigationHostBuilder].
+     *
+     * This infix function finds the shortest path in the host tree using the BFS algorithm
+     * based on the hosts and points in the current traversal context. If the path is found,
+     * it modifies the last host on the way using the provided configuration block and returns the updated
+     * [NavigationStateBuilder].
+     *
+     * Example of using perform:
+     * ```
+     * inside("firstHost")
+     *  .inside("secondHost")
+     *  .perform {
+     *     addDestination(NewDestination)
+     *  }
+     * ```
+     *
+     * @param body A lambda with receiver of type [NavigationHostBuilder] that allows for
+     *              configuring the navigation hosts.
+     *
+     * @return The updated [NavigationStateBuilder] instance with modified hosts.
+     *
+     * @throws IllegalArgumentException If the shortest path cannot be found in the host tree.
+     */
+    public infix fun TraversalContext.perform(body: NavigationHostBuilder.() -> Unit): NavigationStateBuilder {
+        val path: List<String> = findShortestPathBFS(hosts, points)
+            ?: throw error("The given path was not found in the host tree")
+        this@NavigationStateBuilder.hosts = modifyHost(hosts, path, body).toMutableList()
+        return this@NavigationStateBuilder
+    }
+
+    /**
      * Builds a new instance of [NavigationState] using the current state of the builder.
      *
      * @return A new instance of [NavigationState].

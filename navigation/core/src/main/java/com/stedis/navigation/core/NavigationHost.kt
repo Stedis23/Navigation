@@ -210,6 +210,19 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
     }
 
     /**
+     * Updates the children navigation hosts.
+     *
+     * @param children The new list of children navigation hosts.
+     *
+     * @return A new [NavigationHostBuilder] instance.
+     */
+    public fun updateChildren(children: List<NavigationHost>) =
+        apply {
+            this.children.clear()
+            this.children.addAll(children)
+        }
+
+    /**
      * Updates the stack of destinations.
      *
      * @param stack The new stack of destinations.
