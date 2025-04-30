@@ -185,11 +185,11 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
                 if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
             }
 
+            children += NavigationHost(hostName, initialDestination, body)
+
             if (children.isEmpty()) {
                 setSelectedChild(hostName)
             }
-
-            children += NavigationHost(hostName, initialDestination, body)
         }
 
     /**
@@ -206,10 +206,15 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
      *
      * @return A new [NavigationHostBuilder] instance.
      */
-    public fun setSelectedChild(hostName: String) =
+    public fun setSelectedChild(hostName: String?) =
         apply {
-            selectedChild = children.find { it.hostName == hostName }
-                ?: throw error("navigation host does not contain child host: $hostName")
+            if (hostName != null) {
+                selectedChild = children.find { it.hostName == hostName }
+                    ?: throw error("navigation host does not contain child host: $hostName")
+            } else {
+                selectedChild = null
+            }
+
         }
 
     /**

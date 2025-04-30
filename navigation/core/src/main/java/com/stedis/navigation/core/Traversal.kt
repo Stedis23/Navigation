@@ -58,6 +58,7 @@ internal fun modifyHost(
                 NavigationHostBuilder(it.hostName, initialDestination = it.currentDestination)
                     .updateStack(it.stack)
                     .updateChildren(it.children)
+                    .setSelectedChild(it.selectedChild?.hostName)
                     .also { it.body() }
                     .build()
             } else {
@@ -80,7 +81,7 @@ private fun NavigationHost.findChild(
                     NavigationHostBuilder(it.hostName, it.currentDestination)
                         .updateStack(it.stack)
                         .updateChildren(it.children)
-                        .also { it.body() }
+                        .apply { body() }
                         .build()
                 } else {
                     val newPath = path.drop(ONE)

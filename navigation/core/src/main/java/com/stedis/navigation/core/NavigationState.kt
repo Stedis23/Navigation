@@ -65,10 +65,10 @@ public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostB
  * @return A new instance of [NavigationState].
  */
 public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
-    NavigationStateBuilder(currentHost).also {
-        it.updateHosts { this@buildNewState.hosts }
-        if (params != null) it.params()
-    }.build()
+    NavigationStateBuilder(currentHost)
+        .updateHosts { this@buildNewState.hosts }
+        .also { if (params != null) it.params() }
+        .build()
 
 /**
  * Searches for a [NavigationHost] by its host name within the list of available hosts.
@@ -211,7 +211,8 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     public infix fun TraversalContext.perform(body: NavigationHostBuilder.() -> Unit): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
             ?: throw error("The given path was not found in the host tree")
-        this@NavigationStateBuilder.hosts = modifyHost(hosts, path, body).toMutableList()
+        updateHosts { modifyHost(hosts, path, body).toMutableList() }
+
         return this@NavigationStateBuilder
     }
 
