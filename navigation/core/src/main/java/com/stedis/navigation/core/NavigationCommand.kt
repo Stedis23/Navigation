@@ -24,7 +24,7 @@ interface NavigationCommand {
  * This command utilizes a [NavigationStateBuilder] to construct a new navigation state.
  *
  * This can be useful if you need some special case of navigation command.
- * For creating template commands it is better to implement the interface of [NavigationCommand]
+ * For creating template commands it is better to implement the interface of [com.stedis.navigation.core.NavigationCommand]
  * You can see examples of this [here](https://github.com/Stedis23/Navigation/blob/d90d91c85b177ffa2e2256c5860aa8f0c76f5a91/navigation/core/src/main/java/com/stedis/navigation/core/NavigationCommands.kt)
  *
  * Example of using [NavigationCommand]:
@@ -56,7 +56,7 @@ public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
  * to the current host.
  *
  * This can be useful if you need some special case of navigation command.
- * For creating template commands it is better to implement the interface of [NavigationCommand]
+ * For creating template commands it is better to implement the interface of [com.stedis.navigation.core.NavigationCommand]
  * You can see examples of this [here](https://github.com/Stedis23/Navigation/blob/d90d91c85b177ffa2e2256c5860aa8f0c76f5a91/navigation/core/src/main/java/com/stedis/navigation/core/NavigationCommands.kt)
  *
  * Example of using [CurrentHostNavigationCommand]:
