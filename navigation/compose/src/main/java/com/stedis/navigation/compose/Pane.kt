@@ -2,12 +2,18 @@ package com.stedis.navigation.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
+import com.stedis.navigation.core.NavigationHost
 
 val LocalSaveableStateHolder = compositionLocalOf<SaveableStateHolder> {
     error("No SaveableStateHolder provided")
+}
+
+val LocalNavigationHost = compositionLocalOf<NavigationHost> {
+    error("No NavigationHost provided")
 }
 
 /**
@@ -55,4 +61,56 @@ public fun Pane(
             }
         }
     )
+}
+
+/**
+ * Composable function that displays the current destination screen from the provided [NavigationHost].
+ *
+ * This function takes a [NavigationHost] as a parameter and retrieves the current destination
+ * to invoke its defined composable function for rendering the corresponding UI. It serves as a
+ * bridge between the navigation system and the Jetpack Compose framework, allowing for seamless
+ * integration of destination screens within a Compose hierarchy.
+ *
+ * The function utilizes a [SaveableStateHolder] to manage the state of the displayed destination
+ * screen, ensuring that any state associated with the screen is saved and restored appropriately
+ * during configuration changes, such as screen rotations.
+ *
+ * Example usage:
+ * ```
+ * Pane(navigationHost = myNavigationHost)
+ * ```
+ *
+ * Note: Ensure that the provided [NavigationHost] is properly configured and that its current
+ * destination implements the [ComposeDestination] interface, providing a valid composable function
+ * that can handle any required parameters and state.
+ *
+ * @param navigationHost The [NavigationHost] that contains the current destination to be displayed.
+ * This host must be configured to manage navigation within the application, and its current destination
+ * must implement the [ComposeDestination] interface.
+ *
+ * @param modifier An optional [Modifier] to be applied to the container of the destination screen.
+ * This can be used to customize the layout, padding, or other visual properties of the displayed screen.
+ */
+@Composable
+public fun Pane(
+    navigationHost: NavigationHost,
+    modifier: Modifier = Modifier,
+) {
+    val saveableStateHolder = LocalSaveableStateHolder.current
+
+    CompositionLocalProvider(
+        LocalNavigationHost provides navigationHost,
+    )
+    {
+        saveableStateHolder.SaveableStateProvider(
+            key = navigationHost.currentDestination.toString(),
+            content = {
+                Box(modifier = modifier) {
+                    val destination = navigationHost.currentDestination as? ComposeDestination
+                        ?: throw error("${navigationHost.currentDestination} isn`t ComposeDestination")
+                    destination.composable.invoke(destination)
+                }
+            }
+        )
+    }
 }
