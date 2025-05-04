@@ -88,11 +88,13 @@ public fun NavigationState.findHost(hostName: String): NavigationHost? =
  */
 class NavigationStateBuilder(initialHost: NavigationHost) {
 
+    private var _hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
+
     /**
      * A mutable list of navigation hosts.
      */
-    public var hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
-        private set
+    public val hosts: List<NavigationHost>
+        get() = _hosts
 
     /**
      * The currently active navigation host.
@@ -113,8 +115,8 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     public fun updateHosts(body: NavigationStateBuilder.() -> List<NavigationHost>) =
         apply {
             val newHosts = body()
-            hosts = newHosts.toMutableList()
-            updateCurrentHost(currentHost.hostName, hosts)
+            _hosts = newHosts.toMutableList()
+            updateCurrentHost(currentHost.hostName, _hosts)
         }
 
     /**
@@ -126,7 +128,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      */
     public fun setCurrentHost(hostName: String) =
         apply {
-            updateCurrentHost(hostName, hosts)
+            updateCurrentHost(hostName, _hosts)
         }
 
     private fun updateCurrentHost(hostName: String, hosts: List<NavigationHost>) {
@@ -150,10 +152,10 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
         body: (NavigationHostBuilder.() -> Unit)? = null
     ) =
         apply {
-            hosts.forEach {
+            _hosts.forEach {
                 if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
             }
-            hosts += NavigationHost(hostName, initialDestination, body)
+            _hosts += NavigationHost(hostName, initialDestination, body)
         }
 
     /**
@@ -165,7 +167,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      */
     public fun removeHost(hostName: String) =
         apply {
-            hosts.removeIf { it.hostName == hostName }
+            _hosts.removeIf { it.hostName == hostName }
         }
 
     /**
@@ -179,7 +181,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      */
     public infix fun inside(hostName: String): TraversalContext =
         TraversalContext(
-            hosts = hosts,
+            hosts = _hosts,
             points = listOf(hostName),
         )
 
@@ -211,7 +213,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     public infix fun TraversalContext.perform(body: NavigationHostBuilder.() -> Unit): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
             ?: throw error("The given path was not found in the host tree")
-        updateHosts { modifyHost(hosts, path, body).toMutableList() }
+        updateHosts { modifyHost(_hosts, path, body).toMutableList() }
 
         return this@NavigationStateBuilder
     }
@@ -243,9 +245,9 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             ?: throw error("The given path was not found in the host tree")
 
         val head = path.first()
-        val root = hosts.find { it.hostName == head } ?: throw error("root host can`t be null")
+        val root = _hosts.find { it.hostName == head } ?: throw error("root host can`t be null")
 
-        this@NavigationStateBuilder.hosts = hosts.map {
+        this@NavigationStateBuilder._hosts = hosts.map {
             if (it.hostName == head) {
                 if (path.size == ONE) {
                     it
@@ -290,7 +292,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      */
     public fun build(): NavigationState =
         NavigationState(
-            hosts = hosts,
+            hosts = _hosts,
             currentHost = currentHost,
             currentDestination = currentDestination,
         )
