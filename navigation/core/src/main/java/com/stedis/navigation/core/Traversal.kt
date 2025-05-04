@@ -17,6 +17,12 @@ data class TraversalContext(
 )
 
 /**
+ * Returns an empty TraversalContext.
+ */
+public fun emptyTraversalContext(): TraversalContext =
+    TraversalContext(hosts = emptyList(), points = emptyList())
+
+/**
  * Retrieves the path of navigation hosts from the current context.
  *
  * This method uses a breadth-first search (BFS) algorithm to find the shortest path through
