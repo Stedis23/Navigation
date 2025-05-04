@@ -49,14 +49,13 @@ public fun TraversalContext.getHostsPath(): List<NavigationHost> {
     if (path.size != ONE) {
         var tail = path.toMutableList().drop(ONE)
         var currentHost: NavigationHost = root
-        while (path.isNotEmpty()) {
+        while (tail.isNotEmpty()) {
             currentHost = currentHost.children.find { it.hostName == tail.first() }
                 ?: throw error("host ${tail.first()} not exist")
-            hostsPath + currentHost
-            tail = path.toMutableList().drop(ONE)
+            hostsPath.add(currentHost)
+            tail = tail.toMutableList().drop(ONE)
         }
     }
-
     return hostsPath
 }
 
