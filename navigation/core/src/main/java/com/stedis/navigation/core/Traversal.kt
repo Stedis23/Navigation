@@ -17,6 +17,44 @@ data class TraversalContext(
 )
 
 /**
+ * Retrieves the path of navigation hosts from the current context.
+ *
+ * This method uses a breadth-first search (BFS) algorithm to find the shortest path through
+ * the navigation host tree starting from the root host. It constructs a list of `NavigationHost`
+ * objects that represent the path from the root to the specified destination.
+ *
+ * Example of using getHostsPath:
+ * ```
+ * val path = TraversalContext.inside("Main")
+ *                              .inside("News")
+ *                              .getHostsPath()
+ * ```
+ *
+ * @return A list of [NavigationHost] representing the path through the host tree.
+ */
+public fun TraversalContext.getHostsPath(): List<NavigationHost> {
+    val path: List<String> = findShortestPathBFS(hosts, points)
+        ?: throw error("The given path was not found in the host tree")
+
+    val root = hosts.find { it.hostName == path.first() } ?: throw error("root host can`t be null")
+
+    val hostsPath = mutableListOf(root)
+
+    if (path.size != ONE) {
+        var tail = path.toMutableList().drop(ONE)
+        var currentHost: NavigationHost = root
+        while (path.isNotEmpty()) {
+            currentHost = currentHost.children.find { it.hostName == tail.first() }
+                ?: throw error("host ${tail.first()} not exist")
+            hostsPath + currentHost
+            tail = path.toMutableList().drop(ONE)
+        }
+    }
+
+    return hostsPath
+}
+
+/**
  * Creates a new [TraversalContext] with the current [NavigationState] and a specified host name.
  *
  * This infix function adds the specified host name as the first point in the traversal context.
@@ -62,7 +100,7 @@ internal fun modifyHost(
                     .also { it.body() }
                     .build()
             } else {
-                root.findChild(tail, body)
+                root.modifyChild(tail, body)
             }
         } else {
             it
@@ -70,7 +108,7 @@ internal fun modifyHost(
     }
 }
 
-private fun NavigationHost.findChild(
+private fun NavigationHost.modifyChild(
     path: List<String>,
     body: NavigationHostBuilder.() -> Unit
 ): NavigationHost =
@@ -85,7 +123,7 @@ private fun NavigationHost.findChild(
                         .build()
                 } else {
                     val newPath = path.drop(ONE)
-                    it.findChild(newPath, body)
+                    it.modifyChild(newPath, body)
                 }
             } else {
                 it
