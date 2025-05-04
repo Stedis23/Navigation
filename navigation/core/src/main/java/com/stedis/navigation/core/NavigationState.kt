@@ -38,7 +38,7 @@ public fun NavigationState(
     NavigationStateBuilder(initialHost).also { if (params != null) it.params() }.build()
 
 /**
- * Creates a new instance of [NavigationState], changing only the current host.
+ * Creates a new instance of [NavigationState], changing only the current root host.
  *
  * @param params An optional lambda function to configure the [NavigationHostBuilder].
  *

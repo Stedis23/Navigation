@@ -36,7 +36,7 @@ public fun rememberNavigationState(): NavigationState {
 }
 
 /**
- * Retrieves the current [Destination] from the currently active host's [NavigationState].
+ * Retrieves the current [Destination] from the currently active root host's [NavigationState].
  * This function utilizes [rememberNavigationState] to access the state and
  * returns the current destination associated with the active host.
  *
@@ -49,11 +49,11 @@ public fun rememberCurrentDestination(): Destination {
 }
 
 /**
- * Retrieves the current [Destination] from a specified host's [NavigationState].
+ * Retrieves the current [Destination] from a specified root host's [NavigationState].
  * This function takes the host name as a parameter, finds the corresponding host
  * in the navigation state, and returns its current destination.
  *
- * @param hostName The name of the host from which to retrieve the current destination.
+ * @param hostName The name of the root host from which to retrieve the current destination.
  *
  * @return The current [Destination] associated with the specified host.
  *

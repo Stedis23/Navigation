@@ -50,7 +50,7 @@ public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
     }
 
 /**
- * Creates a [NavigationCommand] that modifies the current navigation state with modify the current host using the provided
+ * Creates a [NavigationCommand] that modifies the current navigation state with modify the current root host using the provided
  *
  * This command utilizes a [NavigationHostBuilder] to construct a new navigation state that includes modifications
  * to the current host.
