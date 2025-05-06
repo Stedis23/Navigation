@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +14,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,20 +24,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stedis.navigation.compose.LocalNavigationHost
 import com.stedis.navigation.compose.LocalNavigationManager
+import com.stedis.navigation.core.inside
 import com.stedis.samples.R
-import com.stedis.samples.navigation.ext.close
-
+import com.stedis.samples.navigation.ext.back
+import com.stedis.samples.ui.component.TopBar
 
 @Composable
-fun FriendInfoPane(friendId: String) {
+fun FriendInfoPane(friendId: Int) {
     val navigationManager = LocalNavigationManager.current
+    val currentNavigationHost = LocalNavigationHost.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ToolBar(onClick = { navigationManager.close() })
+        TopBar(
+            onClick = { navigationManager.back { inside(currentNavigationHost.hostName) } }
+        )
 
         FriendProfile(
             friendName = stringResource(R.string.friend) + friendId,
@@ -50,23 +50,6 @@ fun FriendInfoPane(friendId: String) {
             friendAvatar = R.drawable.person,
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ToolBar(onClick: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {},
-        navigationIcon = {
-            Icon(
-                painter = painterResource(R.drawable.arrow_back),
-                contentDescription = null,
-                modifier = Modifier.clickable { onClick() }
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-            .copy(containerColor = MaterialTheme.colorScheme.background)
-    )
 }
 
 @Composable

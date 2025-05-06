@@ -9,10 +9,10 @@ import kotlinx.parcelize.Parcelize
 
 @NoSaveState
 @Parcelize
-data class MainDestination(val currentSubHost: String) : ComposeDestination {
+object MainDestination : ComposeDestination {
 
     @IgnoredOnParcel
     override val composable: @Composable (Destination) -> Unit = {
-        MainPane((it as MainDestination).currentSubHost)
+        MainPane()
     }
 }

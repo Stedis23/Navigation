@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stedis.samples.R
+import com.stedis.samples.ui.component.TopBar
 
 @Composable
 fun NewsFeedPane() {
@@ -30,7 +28,7 @@ fun NewsFeedPane() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ToolBar()
+        TopBar(text = stringResource(R.string.main_news))
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -38,27 +36,15 @@ fun NewsFeedPane() {
         ) {
             for (id in 1..100) {
                 item {
-                    NewsCard(id.toString())
+                    NewsCard(id)
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ToolBar() {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(text = stringResource(R.string.main_news))
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-            .copy(containerColor = MaterialTheme.colorScheme.background)
-    )
-}
-
-@Composable
-private fun NewsCard(newsId: String) {
+private fun NewsCard(newsId: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

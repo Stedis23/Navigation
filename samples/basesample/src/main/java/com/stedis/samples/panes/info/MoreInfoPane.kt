@@ -1,9 +1,7 @@
 package com.stedis.samples.panes.info
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,13 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,23 +24,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.stedis.navigation.compose.LocalNavigationHost
 import com.stedis.navigation.compose.LocalNavigationManager
 import com.stedis.samples.R
 import com.stedis.samples.navigation.destinations.WebPageDestination
-import com.stedis.samples.navigation.ext.close
-import com.stedis.samples.navigation.ext.open
+import com.stedis.samples.navigation.ext.back
+import com.stedis.samples.navigation.ext.forward
+import com.stedis.samples.ui.component.TopBar
 
 private const val GITHUB_URL = "https://github.com/Stedis23/Navigation"
 
 @Composable
 fun MoreInfoPane() {
     val navigationManager = LocalNavigationManager.current
-
-    BackHandler { navigationManager.close() }
+    val currentNavigationHost = LocalNavigationHost.current
 
     Scaffold(
         topBar = {
-            ToolBar(onClick = { navigationManager.close() })
+            TopBar(
+                text = stringResource(R.string.more_info),
+                onClick = { navigationManager.back() },
+            )
         }
     ) {
         Column(
@@ -84,14 +82,14 @@ fun MoreInfoPane() {
 
             Column {
                 Button(
-                    onClick = { navigationManager.open(WebPageDestination(GITHUB_URL)) },
+                    onClick = { navigationManager.forward(WebPageDestination(GITHUB_URL)) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = stringResource(R.string.go_to_github))
                 }
 
                 Button(
-                    onClick = { navigationManager.close() },
+                    onClick = { navigationManager.back() },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors()
                         .copy(containerColor = MaterialTheme.colorScheme.secondary),
@@ -101,23 +99,4 @@ fun MoreInfoPane() {
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ToolBar(onClick: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(text = stringResource(R.string.more_info))
-        },
-        navigationIcon = {
-            Icon(
-                painter = painterResource(R.drawable.arrow_back),
-                contentDescription = null,
-                modifier = Modifier.clickable { onClick() }
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-            .copy(containerColor = MaterialTheme.colorScheme.background)
-    )
 }
