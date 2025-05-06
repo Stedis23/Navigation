@@ -89,6 +89,10 @@ public fun NavigationState.findHost(hostName: String): NavigationHost? =
 class NavigationStateBuilder(initialHost: NavigationHost) {
 
     private var _hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
+        set(value) {
+            field = value
+            updateTraversalContext()
+        }
 
     /**
      * A mutable list of navigation hosts.
@@ -104,6 +108,19 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     private val currentDestination: Destination
         get() = currentHost.currentDestination
+
+    /**
+     * The currently traversal context.
+     */
+    public var traversalContext: TraversalContext = emptyTraversalContext().copy(hosts = _hosts)
+        private set
+
+    private fun updateTraversalContext() {
+        traversalContext = TraversalContext(
+            hosts = _hosts,
+            points = traversalContext.points
+        )
+    }
 
     /**
      * Updates the list of navigation hosts based on the provided lambda function.

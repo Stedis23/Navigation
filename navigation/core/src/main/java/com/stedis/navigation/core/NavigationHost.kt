@@ -140,8 +140,11 @@ public fun NavigationHost.findLast(destination: Destination): Destination? {
  * @return A new [NavigationHost] instance.
  */
 public fun NavigationHost.buildNewHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationHost =
-    NavigationHostBuilder(hostName, stack.first()).also {
-        it.updateStack(stack)
+    NavigationHostBuilder(hostName, stack.first())
+        .updateStack(stack)
+        .updateChildren(children)
+        .setSelectedChild(selectedChild?.hostName)
+        .also {
         if (params != null) it.params()
     }.build()
 

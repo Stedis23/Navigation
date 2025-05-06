@@ -116,25 +116,33 @@ internal fun modifyHost(
 private fun NavigationHost.modifyChild(
     path: List<String>,
     body: NavigationHostBuilder.() -> Unit
-): NavigationHost =
-    copy(
-        children = children.map {
-            if (it.hostName == path.first()) {
-                if (path.size == ONE) {
-                    NavigationHostBuilder(it.hostName, it.currentDestination)
-                        .updateStack(it.stack)
-                        .updateChildren(it.children)
-                        .apply { body() }
-                        .build()
-                } else {
-                    val newPath = path.drop(ONE)
-                    it.modifyChild(newPath, body)
-                }
+): NavigationHost {
+    val newChildren = children.map {
+        if (it.hostName == path.first()) {
+            if (path.size == ONE) {
+                NavigationHostBuilder(it.hostName, it.currentDestination)
+                    .updateStack(it.stack)
+                    .updateChildren(it.children)
+                    .setSelectedChild(it.selectedChild?.hostName)
+                    .apply { body() }
+                    .build()
             } else {
-                it
+                val newPath = path.drop(ONE)
+                it.modifyChild(newPath, body)
             }
+        } else {
+            it
         }
+    }
+
+    val newSelectedChild = newChildren.find { it.hostName == selectedChild?.hostName }
+
+    return copy(
+        selectedChild = newSelectedChild,
+        children = newChildren,
     )
+}
+
 
 internal fun findShortestPathBFS(roots: List<NavigationHost>, points: List<String>): List<String>? {
     val queue: LinkedList<Pair<NavigationHost, List<String>>> = LinkedList()
