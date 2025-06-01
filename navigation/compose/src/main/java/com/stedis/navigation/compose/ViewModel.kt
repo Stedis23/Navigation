@@ -19,6 +19,29 @@ import com.stedis.navigation.core.Destination
  *
  * @param factory An optional factory for creating the [ViewModel] instance. If `null`, the
  * default factory will be utilized.
+ * @param key An optional key to identify the [ViewModel] instance. If `null`, the key will
+ * default to the string representation of the current destination.
+ *
+ *
+ * Example Usage:
+ * ```
+ * @Composable
+ * fun UserPanel() {
+ *     val navigationViewModel = getNavigationViewModel()
+ *     val viewModel = ViewModel<UserViewModel>(key = "UserViewModel")
+ *
+ *     // logic of UserPanel
+ *
+ *     DisposableEffect(Unit) {
+ *         onDispose {
+ *             //clearing occurs when the screen is immediately closed
+ *             // and the lifecycle does not match the lifecycle destination in the navigation state.
+ *             navigationViewModel.remote(key = "UserViewModel")
+ *         }
+ *     }
+ * }
+ * ```
+ *
  *
  * @return An instance of [ViewModel] that is tied to the lifecycle of the current destination.
  *
@@ -26,12 +49,16 @@ import com.stedis.navigation.core.Destination
  * factory.
  */
 @Composable
-inline fun <reified VM : ViewModel> ViewModel(factory: ViewModelFactory? = null): VM {
+inline fun <reified VM : ViewModel> ViewModel(
+    factory: ViewModelFactory? = null,
+    key: String? = null,
+): VM {
     val navigationViewModel = getNavigationViewModel()
     val viewModelFactory = factory ?: getViewModelFactory()
+    val currentNavigationHost = LocalNavigationHost.current
     return viewModel(
         viewModelStoreOwner = navigationViewModel.getViewModelStoreOwner(
-            rememberCurrentDestination().toString()
+            key ?: currentNavigationHost.currentDestination.toString()
         )
     ) {
         viewModelFactory.create(VM::class.java)
@@ -159,11 +186,11 @@ public class DefaultViewModelFactory : ViewModelFactory {
  */
 public interface ViewModelFactory {
 
-/**
- * Creates a new instance of the specified [ViewModel] class.
- *
- * @param modelClass The class of the [ViewModel] to be instantiated.
- * @return A new instance of the specified [ViewModel].
- */
+    /**
+     * Creates a new instance of the specified [ViewModel] class.
+     *
+     * @param modelClass The class of the [ViewModel] to be instantiated.
+     * @return A new instance of the specified [ViewModel].
+     */
     public fun <VM : ViewModel> create(modelClass: Class<VM>): VM
 }
