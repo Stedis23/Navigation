@@ -1,4 +1,4 @@
-package com.stedis.samples.panes.news
+package com.stedis.samples.ui.panes.news
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

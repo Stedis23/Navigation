@@ -1,4 +1,4 @@
-package com.stedis.samples.panes.friends.feed
+package com.stedis.samples.ui.panes.friends.feed
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,8 +28,8 @@ import com.stedis.navigation.compose.LocalNavigationHost
 import com.stedis.navigation.compose.LocalNavigationManager
 import com.stedis.navigation.core.inside
 import com.stedis.samples.R
+import com.stedis.samples.navigation.destinations.FriendInfoDestination
 import com.stedis.samples.navigation.ext.forward
-import com.stedis.samples.panes.friends.friend.FriendInfoDestination
 import com.stedis.samples.ui.component.TopBar
 
 @Composable

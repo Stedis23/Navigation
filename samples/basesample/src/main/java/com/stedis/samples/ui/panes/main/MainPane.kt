@@ -1,4 +1,4 @@
-package com.stedis.samples.panes.main
+package com.stedis.samples.ui.panes.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -31,9 +31,9 @@ import com.stedis.navigation.compose.Pane
 import com.stedis.navigation.core.inside
 import com.stedis.samples.R
 import com.stedis.samples.navigation.Hosts
+import com.stedis.samples.navigation.destinations.MoreInfoDestination
 import com.stedis.samples.navigation.ext.back
 import com.stedis.samples.navigation.ext.forward
-import com.stedis.samples.panes.info.MoreInfoDestination
 
 @Composable
 fun MainPane() {

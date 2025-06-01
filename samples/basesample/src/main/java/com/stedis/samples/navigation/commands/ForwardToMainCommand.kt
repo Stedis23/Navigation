@@ -4,9 +4,9 @@ import com.stedis.navigation.core.NavigationCommand
 import com.stedis.navigation.core.NavigationState
 import com.stedis.navigation.core.buildNewState
 import com.stedis.samples.navigation.Hosts
-import com.stedis.samples.panes.friends.feed.FriendsFeedDestination
-import com.stedis.samples.panes.main.MainDestination
-import com.stedis.samples.panes.news.NewsFeedDestination
+import com.stedis.samples.navigation.destinations.FriendsFeedDestination
+import com.stedis.samples.navigation.destinations.MainDestination
+import com.stedis.samples.navigation.destinations.NewsFeedDestination
 
 object ForwardToMainCommand : NavigationCommand {
 

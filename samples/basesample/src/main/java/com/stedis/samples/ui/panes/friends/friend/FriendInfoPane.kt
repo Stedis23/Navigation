@@ -1,4 +1,4 @@
-package com.stedis.samples.panes.friends.friend
+package com.stedis.samples.ui.panes.friends.friend
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

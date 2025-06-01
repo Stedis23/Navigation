@@ -8,7 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.net.toUri
-import com.stedis.samples.panes.root.RootPane
+import com.stedis.samples.ui.panes.root.RootPane
 import com.stedis.samples.ui.theme.SamplesTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.stedis.samples.panes.root
+package com.stedis.samples.ui.panes.root
 
 import androidx.compose.runtime.Composable
 import com.stedis.navigation.compose.LocalNavigationManager
@@ -10,8 +10,8 @@ import com.stedis.navigation.core.NavigationHost
 import com.stedis.navigation.core.NavigationState
 import com.stedis.samples.navigation.Hosts
 import com.stedis.samples.navigation.destinations.WebPageDestination
+import com.stedis.samples.navigation.destinations.WelcomeDestination
 import com.stedis.samples.navigation.ext.back
-import com.stedis.samples.panes.welcome.WelcomeDestination
 
 @Composable
 fun RootPane(
