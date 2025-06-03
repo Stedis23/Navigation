@@ -30,7 +30,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 @SuppressLint("ComposableNaming")
 @Composable
 public fun setResultListener(key: String, body: (Bundle) -> Unit) {
-    val navigationViewModel = getNavigationViewModel()
+    val navigationViewModel = getMainNavigationViewModel()
     navigationViewModel.resultManager.setResultListener(key, body)
 }
 
@@ -47,7 +47,7 @@ public fun setResultListener(key: String, body: (Bundle) -> Unit) {
 @SuppressLint("ComposableNaming")
 @Composable
 public fun sendResult(key: String, result: Bundle) {
-    val navigationViewModel = getNavigationViewModel()
+    val navigationViewModel = getMainNavigationViewModel()
     navigationViewModel.resultManager.sendResult(key, result)
 }
 
@@ -65,7 +65,7 @@ public fun sendResult(key: String, result: Bundle) {
 @SuppressLint("ComposableNaming")
 @Composable
 public fun registerListener(key: String, listener: ResultListener) {
-    val navigationViewModel = getNavigationViewModel()
+    val navigationViewModel = getMainNavigationViewModel()
     navigationViewModel.resultManager.registerListener(key, listener)
 }
 
@@ -81,7 +81,7 @@ public fun registerListener(key: String, listener: ResultListener) {
 @SuppressLint("ComposableNaming")
 @Composable
 public fun unregisterListener(key: String) {
-    val navigationViewModel = getNavigationViewModel()
+    val navigationViewModel = getMainNavigationViewModel()
     navigationViewModel.resultManager.unregisterListener(key)
 }
 

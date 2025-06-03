@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
+import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationHost
 
 val LocalSaveableStateHolder = compositionLocalOf<SaveableStateHolder> {
@@ -15,6 +16,11 @@ val LocalSaveableStateHolder = compositionLocalOf<SaveableStateHolder> {
 val LocalNavigationHost = compositionLocalOf<NavigationHost> {
     error("No NavigationHost provided")
 }
+
+val LocalDestination = compositionLocalOf<Destination> {
+    error("No Destination provided")
+}
+
 
 /**
  * Composable function that displays the provided Compose destination screen.
@@ -53,14 +59,20 @@ public fun Pane(
     modifier: Modifier = Modifier,
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
-    saveableStateHolder.SaveableStateProvider(
-        key = destination.toString(),
-        content = {
-            Box(modifier = modifier) {
-                destination.composable.invoke(destination)
-            }
-        }
+
+    CompositionLocalProvider(
+        LocalDestination provides destination,
     )
+    {
+        saveableStateHolder.SaveableStateProvider(
+            key = destination.toString(),
+            content = {
+                Box(modifier = modifier) {
+                    destination.composable.invoke(destination)
+                }
+            }
+        )
+    }
 }
 
 /**
@@ -98,17 +110,19 @@ public fun Pane(
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
 
+    val destination = navigationHost.currentDestination
     CompositionLocalProvider(
         LocalNavigationHost provides navigationHost,
+        LocalDestination provides destination,
     )
     {
         saveableStateHolder.SaveableStateProvider(
-            key = navigationHost.currentDestination.toString(),
+            key = destination.toString(),
             content = {
                 Box(modifier = modifier) {
-                    val destination = navigationHost.currentDestination as? ComposeDestination
-                        ?: throw error("${navigationHost.currentDestination} isn`t ComposeDestination")
-                    destination.composable.invoke(destination)
+                    (destination as? ComposeDestination)?.let {
+                        it.composable.invoke(it)
+                    }
                 }
             }
         )
