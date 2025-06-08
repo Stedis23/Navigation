@@ -1,7 +1,7 @@
 Navigation
 ========
 
-Navigation is a simple way to manage application navigation as a state
+Navigation does not limit us!
 
 ## Add library
 
@@ -15,65 +15,112 @@ implementation("io.github.stedis23:navigation-compose:0.5.0-RC ")
 
 ```
 
-## Compose Sample with Navigation
+## Why Navigation?
+
+- Manage navigation as a state
+- You can choose any structure for your navigation state. Stack, Tree or something completely new.
+  The library tools will allow you to design any structure
+- Have full access to control navigation state
+- Manage navigation state through navigation commands. You can create new navigation commands, as
+  well as chain existing navigation commands for maximum efficiency and flexibility
+- Navigation has host tree traversal tools that allow you to easily make changes to any part of your
+  navigation state
+- Support for declarative coding style
+- Navigation does not dictate what architecture you will have on your project, you can use any
+  architecture with minimal changes to implement the library
+- The library has support for the life cycle of view models and states of screen compositions.
+
+## Basic compose Sample with Navigation
 
 ```kotlin
-
-//create names for your hosts
-object Hosts {
-    const val ROOT = "root"
-}
-
-//implement your composable screens
+//implement your composable components
 @Composable
-fun FirstSampleScreen() {
+fun FirstSamplePane() {
+    //get navigation manager to manage navigation inside the component
     val navigationManager = LocalNavigationManager.current
-    val onItemSelected: (String) -> Unit = { text ->
-        navigationManager.execute(ForwardCommand(SecondSampleDestination(text)))
+    var text by remember { mutableStateOf("") }
+
+    Column(
+    ) {
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+        )
+        Button(onClick = {
+            // navigation command to change the navigation state
+            navigationManager.execute(ForwardCommand(SecondSampleDestination(text)))
+        }) {
+            Text("Open")
+        }
     }
 }
 
-//add destinations and associations for composable screens
+@Composable
+fun SecondSamplePane(text: String) {
+    Text(text = text)
+}
+
+//Add destinations and associations for composable components.
 @Parcelize
 class FirstSampleDestination : ComposeDestination {
 
+    @IgnoredOnParcel
     override val composable: @Composable (Destination) -> Unit = {
-        FirstSampleScreen()
+        FirstSamplePane()
     }
 }
 
 @Parcelize
 data class SecondSampleDestination(val text: String) : ComposeDestination {
 
+
+    @IgnoredOnParcel
     override val composable: @Composable (Destination) -> Unit = { destination ->
-        SecondSampleScreen((destination as SecondSampleDestination).text)
+        //You can also pass parameters from your destination.
+        //This is just one of several ways you can pass parameters.
+        SecondSamplePane((destination as SecondSampleDestination).text)
     }
 }
 
-//add Navigation function in composable block
-Navigation(
-    navigationManager = rememberNavigationManager(
-        NavigationState(
-            NavigationHost(
-                hostName = Hosts.ROOT,
-                initialDestination = SampleDestination
-            )
+//Create a navigation manager, passing the navigation state to it.
+val navigationManager = rememberNavigationManager(
+    NavigationState(
+        NavigationHost(
+            hostName = "Main",
+            initialDestination = FirstSampleDestination(),
         )
     )
+)
+
+//Add Navigation, which is the entry point for navigation in the application.
+Navigation(
+    navigationManager = navigationManager
 ) {
-    Pane(rememberCurrentDestination() as ComposeDestination)
+    //Pass the current host to the panel to display the current destination.
+    //You can also pass the current destination directly.
+    Pane(rememberNavigationHost("Main"))
 }
 ```
+
+## Other Samples
+
+- [baseApp](https://github.com/Stedis23/Navigation/blob/cff6950be654ceaada28f5b66188ff0abcdda6e1/samples/basesample)
 
 ## Sample chain of commands
 
 ```kotlin
 object SampleCommand : NavigationCommand {
-    
+
     override fun execute(navigationState: NavigationState): NavigationState =
         CommandsChain(navigationState) {
-            ReplaceCommand(FirstSampleScreen()) then
-                    ForwardCommand(SecondSampleScreen())
+            ReplaceCommand(SubscribersDestination) then
+                    ForwardCommand(statisticsDestination()) then
+                    NavigationCommand {
+                        traversalContext
+                            .inside("Main")
+                            .inside("Player")
+                            .perform { addDestination(AdPlayerDestination) }
+                    }
         }
 }
 ```
