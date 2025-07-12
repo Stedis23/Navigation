@@ -57,7 +57,7 @@ import com.stedis.navigation.core.Destination
 inline fun <reified VM : ViewModel> NavigationViewModel(
     factory: ViewModelProvider.Factory? = null,
     key: String? = null,
-    lifecycleMode: LifecycleMode = LifecycleMode.SHORT,
+    lifecycleMode: LifecycleMode = LifecycleMode.LONG,
 ): VM {
     val navigationViewModel = getMainNavigationViewModel()
     val viewModelFactory = factory ?: getViewModelFactory()
