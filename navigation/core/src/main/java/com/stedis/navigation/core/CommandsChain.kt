@@ -23,6 +23,7 @@ package com.stedis.navigation.core
  * @return A new instance of [NavigationCommand] representing the command chain.
  */
 @Suppress("FunctionName")
+@NavigationDslMarker
 public fun CommandsChain(body: CommandsChainBuilder.() -> NavigationCommand) =
     object : NavigationCommand {
 
@@ -52,6 +53,7 @@ public fun CommandsChain(body: CommandsChainBuilder.() -> NavigationCommand) =
  * @return A new [NavigationState] resulting from the execution of the command chain.
  */
 @Suppress("FunctionName")
+@NavigationDslMarker
 public fun CommandsChain(
     state: NavigationState,
     body: CommandsChainBuilder.() -> NavigationCommand
@@ -63,7 +65,7 @@ public fun CommandsChain(
  *
  * @property state The initial [NavigationState] for the command chain.
  */
-class CommandsChainBuilder(state: NavigationState) {
+public class CommandsChainBuilder(state: NavigationState) {
 
     /**
      * The current navigation state being modified by the command chain.

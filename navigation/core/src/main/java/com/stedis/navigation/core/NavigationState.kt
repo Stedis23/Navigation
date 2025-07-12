@@ -31,6 +31,7 @@ data class NavigationState(
  *
  * @return A new instance of [NavigationState].
  */
+@NavigationDslMarker
 public fun NavigationState(
     initialHost: NavigationHost,
     params: (NavigationStateBuilder.() -> Unit)? = null
@@ -44,6 +45,7 @@ public fun NavigationState(
  *
  * @return A new instance of [NavigationState] with updated hosts.
  */
+@NavigationDslMarker
 public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationState =
     buildNewState {
         updateHosts {
@@ -64,6 +66,7 @@ public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostB
  *
  * @return A new instance of [NavigationState].
  */
+@NavigationDslMarker
 public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
     NavigationStateBuilder(currentHost)
         .updateHosts { this@buildNewState.hosts }
@@ -129,6 +132,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      *
      * @return The current instance of [NavigationStateBuilder].
      */
+    @NavigationDslMarker
     public fun updateHosts(body: NavigationStateBuilder.() -> List<NavigationHost>) =
         apply {
             val newHosts = body()
@@ -227,6 +231,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      *
      * @throws IllegalArgumentException If the shortest path cannot be found in the host tree.
      */
+    @NavigationDslMarker
     public infix fun TraversalContext.perform(body: NavigationHostBuilder.() -> Unit): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
             ?: throw error("The given path was not found in the host tree")

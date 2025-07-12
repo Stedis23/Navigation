@@ -61,6 +61,7 @@ data class NavigationHost(
  *
  * @return A new [NavigationHost] instance.
  */
+@NavigationDslMarker
 public fun NavigationHost(
     hostName: String,
     initialDestination: Destination,
@@ -139,6 +140,7 @@ public fun NavigationHost.findLast(destination: Destination): Destination? {
  *
  * @return A new [NavigationHost] instance.
  */
+@NavigationDslMarker
 public fun NavigationHost.buildNewHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationHost =
     NavigationHostBuilder(hostName, stack.first())
         .updateStack(stack)
@@ -178,6 +180,7 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
      * @return The current instance of [NavigationStateBuilder].
      */
     @Suppress("FunctionName")
+    @NavigationDslMarker
     public fun Host(
         hostName: String,
         initialDestination: Destination,

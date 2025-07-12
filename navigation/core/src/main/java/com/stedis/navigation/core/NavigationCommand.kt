@@ -41,7 +41,7 @@ interface NavigationCommand {
  *
  * @return A new instance of [NavigationCommand] that can be executed to modify the navigation state.
  */
-@Suppress("FunctionName")
+@NavigationDslMarker
 public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
     object : NavigationCommand {
 
@@ -75,6 +75,7 @@ public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
  * @return A new instance of [NavigationCommand] that can be executed to build the navigation state with modify the current host.
  */
 @Suppress("FunctionName")
+@NavigationDslMarker
 public fun CurrentHostNavigationCommand(params: NavigationHostBuilder.() -> Unit) =
     object : NavigationCommand {
 

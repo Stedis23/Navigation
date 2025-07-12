@@ -40,6 +40,7 @@ class NavigationManager(
  *
  * @return A new instance of [NavigationManager].
  */
+@NavigationDslMarker
 public fun NavigationManager(state: () -> NavigationState) = NavigationManager(state())
 
 /**
