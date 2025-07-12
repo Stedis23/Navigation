@@ -7,6 +7,8 @@ import kotlin.reflect.KClass
 private const val ONE = 1
 private const val NOT_FOUND_INDEX = -1
 
+public typealias HostBuilderDeclaration = NavigationHostBuilder.() -> Unit
+
 /**
  * The [NavigationHost] class represents a navigation host in the application.
  * It has a unique name and manages a stack of destinations, as well as the current destination at the top of the stack.
@@ -65,7 +67,7 @@ data class NavigationHost(
 public fun NavigationHost(
     hostName: String,
     initialDestination: Destination,
-    params: (NavigationHostBuilder.() -> Unit)? = null,
+    params: HostBuilderDeclaration? = null,
 ): NavigationHost =
     NavigationHostBuilder(hostName, initialDestination).also { if (params != null) it.params() }
         .build()
@@ -141,7 +143,7 @@ public fun NavigationHost.findLast(destination: Destination): Destination? {
  * @return A new [NavigationHost] instance.
  */
 @NavigationDslMarker
-public fun NavigationHost.buildNewHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationHost =
+public fun NavigationHost.buildNewHost(params: HostBuilderDeclaration? = null): NavigationHost =
     NavigationHostBuilder(hostName, stack.first())
         .updateStack(stack)
         .updateChildren(children)
@@ -184,7 +186,7 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
     public fun Host(
         hostName: String,
         initialDestination: Destination,
-        body: (NavigationHostBuilder.() -> Unit)? = null
+        body: HostBuilderDeclaration? = null
     ) =
         apply {
             children.forEach {

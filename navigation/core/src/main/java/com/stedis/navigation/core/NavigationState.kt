@@ -2,6 +2,8 @@ package com.stedis.navigation.core
 
 private const val ONE = 1
 
+public typealias StateBuilderDeclaration = NavigationStateBuilder.() -> Unit
+
 /**
  * [NavigationState] represents the global navigation state that holds all information related to navigation.
  *
@@ -34,7 +36,7 @@ data class NavigationState(
 @NavigationDslMarker
 public fun NavigationState(
     initialHost: NavigationHost,
-    params: (NavigationStateBuilder.() -> Unit)? = null
+    params: StateBuilderDeclaration? = null
 ): NavigationState =
     NavigationStateBuilder(initialHost).also { if (params != null) it.params() }.build()
 
@@ -46,7 +48,7 @@ public fun NavigationState(
  * @return A new instance of [NavigationState] with updated hosts.
  */
 @NavigationDslMarker
-public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostBuilder.() -> Unit)? = null): NavigationState =
+public fun NavigationState.buildNewStateWithCurrentHost(params: HostBuilderDeclaration? = null): NavigationState =
     buildNewState {
         updateHosts {
             this@buildNewState.hosts.map { host ->
@@ -67,7 +69,7 @@ public fun NavigationState.buildNewStateWithCurrentHost(params: (NavigationHostB
  * @return A new instance of [NavigationState].
  */
 @NavigationDslMarker
-public fun NavigationState.buildNewState(params: (NavigationStateBuilder.() -> Unit)? = null): NavigationState =
+public fun NavigationState.buildNewState(params: StateBuilderDeclaration? = null): NavigationState =
     NavigationStateBuilder(currentHost)
         .updateHosts { this@buildNewState.hosts }
         .also { if (params != null) it.params() }
@@ -170,7 +172,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     public fun Host(
         hostName: String,
         initialDestination: Destination,
-        body: (NavigationHostBuilder.() -> Unit)? = null
+        body: HostBuilderDeclaration? = null
     ) =
         apply {
             _hosts.forEach {
@@ -232,7 +234,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      * @throws IllegalArgumentException If the shortest path cannot be found in the host tree.
      */
     @NavigationDslMarker
-    public infix fun TraversalContext.perform(body: NavigationHostBuilder.() -> Unit): NavigationStateBuilder {
+    public infix fun TraversalContext.perform(body: HostBuilderDeclaration): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
             ?: throw error("The given path was not found in the host tree")
         updateHosts { modifyHost(_hosts, path, body).toMutableList() }

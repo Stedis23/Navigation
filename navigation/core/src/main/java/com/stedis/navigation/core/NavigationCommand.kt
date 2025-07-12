@@ -42,7 +42,7 @@ interface NavigationCommand {
  * @return A new instance of [NavigationCommand] that can be executed to modify the navigation state.
  */
 @NavigationDslMarker
-public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
+public fun NavigationCommand(params: StateBuilderDeclaration) =
     object : NavigationCommand {
 
         override fun execute(navigationState: NavigationState): NavigationState =
@@ -76,7 +76,7 @@ public fun NavigationCommand(params: NavigationStateBuilder.() -> Unit) =
  */
 @Suppress("FunctionName")
 @NavigationDslMarker
-public fun CurrentHostNavigationCommand(params: NavigationHostBuilder.() -> Unit) =
+public fun CurrentHostNavigationCommand(params: HostBuilderDeclaration) =
     object : NavigationCommand {
 
         override fun execute(navigationState: NavigationState): NavigationState =

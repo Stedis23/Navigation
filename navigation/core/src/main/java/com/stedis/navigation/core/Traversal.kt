@@ -89,7 +89,7 @@ public infix fun TraversalContext.inside(hostName: String): TraversalContext =
 internal fun modifyHost(
     roots: List<NavigationHost>,
     path: List<String>,
-    body: NavigationHostBuilder.() -> Unit
+    body: HostBuilderDeclaration,
 ): List<NavigationHost> {
     val head = path.first()
     val tail = path.drop(ONE)
@@ -115,7 +115,7 @@ internal fun modifyHost(
 
 private fun NavigationHost.modifyChild(
     path: List<String>,
-    body: NavigationHostBuilder.() -> Unit
+    body: HostBuilderDeclaration,
 ): NavigationHost {
     val newChildren = children.map {
         if (it.hostName == path.first()) {
