@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     `maven-publish`
-    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
 tasks.withType<AbstractPublishToMaven>().configureEach {
@@ -14,11 +14,11 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.5.0-RC"
+version = "0.5.0"
 
 android {
     namespace = "com.stedis.navigation.compose"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -51,7 +51,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation("io.github.stedis23:navigation-core:0.5.0-RC")
+    implementation("io.github.stedis23:navigation-core:0.5.0")
 }
 
 publishing {

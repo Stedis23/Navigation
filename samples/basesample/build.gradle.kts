@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.stedis.samples"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.stedis.samples"
@@ -45,6 +45,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
 
-    implementation("io.github.stedis23:navigation-core:0.5.0-RC")
-    implementation("io.github.stedis23:navigation-compose:0.5.0-RC")
+    implementation("io.github.stedis23:navigation-core:0.5.0")
+    implementation("io.github.stedis23:navigation-compose:0.5.0")
 }

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-parcelize")
     `maven-publish`
-    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
 tasks.withType<AbstractPublishToMaven>().configureEach {
@@ -14,11 +14,11 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.5.0-RC"
+version = "0.5.0"
 
 android {
     namespace = "com.stedis.navigation.core"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
