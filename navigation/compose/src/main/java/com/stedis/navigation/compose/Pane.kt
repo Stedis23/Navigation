@@ -45,6 +45,10 @@ val LocalDestination = compositionLocalOf<Destination> {
  * screen, ensuring that any state associated with the screen is saved and restored
  * appropriately during configuration changes, such as screen rotations.
  *
+ * Navigation transitions between destinations are animated using [AnimatedContent],
+ * with the animation specified by the [transitionSpec] parameter. By default,
+ * a simple fade-in/fade-out animation is used, but this can be customized as needed.
+ *
  * Example usage:
  * ```
  * Pane(destination = MyComposeDestination())
@@ -62,6 +66,10 @@ val LocalDestination = compositionLocalOf<Destination> {
  * @param modifier An optional [Modifier] to be applied to the container of the
  * destination screen. This can be used to customize the layout, padding, or other
  * visual properties of the displayed screen.
+ *
+ * @param transitionSpec A [ContentTransform] defining the animation used when transitioning
+ * to this destination. The default is a fade-in/fade-out animation. You can provide custom
+ * animations to control the visual behavior during navigation transitions.
  */
 @Composable
 public fun Pane(
@@ -100,6 +108,10 @@ public fun Pane(
  * screen, ensuring that any state associated with the screen is saved and restored appropriately
  * during configuration changes, such as screen rotations.
  *
+ * Navigation between destinations is animated using [AnimatedContent], and the specific transition
+ * animation is selected based on the navigation action (forward, back, replace, host change) via
+ * the provided [navigationAnimations] parameter.
+ *
  * Example usage:
  * ```
  * Pane(navigationHost = myNavigationHost)
@@ -115,6 +127,11 @@ public fun Pane(
  *
  * @param modifier An optional [Modifier] to be applied to the container of the destination screen.
  * This can be used to customize the layout, padding, or other visual properties of the displayed screen.
+ *
+ * @param navigationAnimations An instance of [NavigationAnimations] that defines the animations used
+ * for transitions between destinations. This includes animations for forward navigation, back navigation,
+ * replacing the current destination, changing hosts, and a default fallback animation. You can customize
+ * these animations by providing your own [NavigationAnimations] instance.
  */
 @Composable
 public fun Pane(
