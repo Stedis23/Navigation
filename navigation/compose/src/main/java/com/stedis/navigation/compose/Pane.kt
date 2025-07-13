@@ -1,10 +1,20 @@
 package com.stedis.navigation.compose
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationHost
@@ -57,21 +67,24 @@ val LocalDestination = compositionLocalOf<Destination> {
 public fun Pane(
     destination: ComposeDestination,
     modifier: Modifier = Modifier,
+    transitionSpec: ContentTransform = fadeIn().togetherWith(fadeOut()),
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
 
-    CompositionLocalProvider(
-        LocalDestination provides destination,
-    )
-    {
-        saveableStateHolder.SaveableStateProvider(
-            key = destination.toString(),
-            content = {
-                Box(modifier = modifier) {
-                    destination.composable.invoke(destination)
+    CompositionLocalProvider(LocalDestination provides destination) {
+        AnimatedContent(
+            targetState = destination,
+            transitionSpec = { transitionSpec using null },
+        ) { destination ->
+            saveableStateHolder.SaveableStateProvider(
+                key = destination.toString(),
+                content = {
+                    Box(modifier = modifier) {
+                        destination.composable.invoke(destination)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -107,24 +120,59 @@ public fun Pane(
 public fun Pane(
     navigationHost: NavigationHost,
     modifier: Modifier = Modifier,
+    navigationAnimations: NavigationAnimations = NavigationAnimations(),
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
+    var previousHost by remember { mutableStateOf(navigationHost) }
 
-    val destination = navigationHost.currentDestination
+    LaunchedEffect(navigationHost) {
+        previousHost = navigationHost
+    }
+
+    val currentDestination = navigationHost.currentDestination
     CompositionLocalProvider(
         LocalNavigationHost provides navigationHost,
-        LocalDestination provides destination,
-    )
-    {
-        saveableStateHolder.SaveableStateProvider(
-            key = destination.toString(),
-            content = {
-                Box(modifier = modifier) {
-                    (destination as? ComposeDestination)?.let {
-                        it.composable.invoke(it)
+        LocalDestination provides currentDestination,
+    ) {
+        AnimatedContent(
+            targetState = currentDestination,
+            transitionSpec = {
+                getTransitionSpec(
+                    previousHost,
+                    navigationHost,
+                    navigationAnimations,
+                ) using null
+            },
+        ) { destination ->
+            saveableStateHolder.SaveableStateProvider(
+                key = destination.toString(),
+                content = {
+                    Box(modifier = modifier) {
+                        (destination as? ComposeDestination)?.let {
+                            it.composable.invoke(it)
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }
+
+private fun getTransitionSpec(
+    previousHost: NavigationHost,
+    currentHost: NavigationHost,
+    navigationAnimations: NavigationAnimations
+): ContentTransform =
+    when {
+        previousHost.hostName == currentHost.hostName &&
+                previousHost.stack.size < currentHost.stack.size -> navigationAnimations.backAnimation
+
+        previousHost.hostName == currentHost.hostName &&
+                previousHost.stack.size > currentHost.stack.size -> navigationAnimations.forwardAnimation
+
+        previousHost.hostName == currentHost.hostName -> navigationAnimations.replaceAnimation
+
+        previousHost.hostName != currentHost.hostName -> navigationAnimations.hostChangeAnimation
+
+        else -> navigationAnimations.default
+    }
