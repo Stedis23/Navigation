@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * @property initialState The initial [NavigationState] to set for the manager.
  */
-class NavigationManager(
+public class NavigationManager(
     private val initialState: NavigationState,
 ) {
 

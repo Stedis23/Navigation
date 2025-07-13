@@ -8,4 +8,4 @@ import android.os.Parcelable
  * Destination is used to describe a place that can be navigated to from the current location in the application.
  * This can be a separate screen, fragment, or even an external resource.
  */
-interface Destination : Parcelable
+public interface Destination : Parcelable

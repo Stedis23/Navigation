@@ -6,7 +6,6 @@ import android.os.Parcelable
 
 private const val HOSTS = "stedis:navigation:saver:hosts"
 private const val CURRENT_HOST_NAME = "stedis:navigation:saver:current_host_name"
-private const val HOST_STORE = "stedis:navigation:saver:host:"
 
 public fun NavigationManager.saveState(): Bundle? {
     var bundle: Bundle? = null
@@ -26,20 +25,19 @@ public fun NavigationManager.saveState(): Bundle? {
 }
 
 public fun restoreState(bundle: Bundle?): NavigationState {
-    if (bundle == null) {
-        throw error("state don't was saved")
-    }
+    require(bundle != null) { "state don't was saved" }
 
     var hosts = mutableListOf<NavigationHost>()
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         hosts = bundle.getParcelableArrayList(HOSTS, NavigationHost::class.java)
-            ?: throw error("store don't was saved")
+            ?: throw IllegalStateException("store don't was saved")
     }
 
     val currentHostName = bundle.getString(CURRENT_HOST_NAME)
     val currentHost =
-        hosts.find { it.hostName == currentHostName } ?: throw error("current host cant be empty")
+        hosts.find { it.hostName == currentHostName }
+            ?: throw IllegalArgumentException("current host cant be empty")
 
     return NavigationState(
         hosts = hosts,

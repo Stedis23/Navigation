@@ -23,7 +23,7 @@ public typealias HostBuilderDeclaration = NavigationHostBuilder.() -> Unit
  * The [NavigationHostBuilder] class provides methods for configuring the host and its destinations. See the [NavigationHostBuilder] documentation for details.
  */
 @Parcelize
-data class NavigationHost(
+public data class NavigationHost(
     /**
      * The unique name of the navigation host.
      */
@@ -149,8 +149,8 @@ public fun NavigationHost.buildNewHost(params: HostBuilderDeclaration? = null): 
         .updateChildren(children)
         .setSelectedChild(selectedChild?.hostName)
         .also {
-        if (params != null) it.params()
-    }.build()
+            if (params != null) it.params()
+        }.build()
 
 /**
  * The [NavigationHostBuilder] class provides a builder pattern for creating and configuring [NavigationHost] instances.
@@ -190,7 +190,9 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
     ) =
         apply {
             children.forEach {
-                if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
+                require(it.hostName != hostName) {
+                    "Multiple hosts have name: $hostName, hostName must be unique."
+                }
             }
 
             children += NavigationHost(hostName, initialDestination, body)
@@ -218,7 +220,7 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
         apply {
             if (hostName != null) {
                 selectedChild = children.find { it.hostName == hostName }
-                    ?: throw error("navigation host does not contain child host: $hostName")
+                    ?: throw IllegalArgumentException("navigation host does not contain child host: $hostName")
             } else {
                 selectedChild = null
             }
@@ -303,7 +305,9 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
             checkDestination(destinationClass)
             checkStackSize()
             val index = _stack.indexOfLast { it::class == destinationClass }
-            if (index == NOT_FOUND_INDEX) throw Error("stack does not contain destination ${destinationClass.simpleName}")
+            require(index != NOT_FOUND_INDEX) {
+                "stack does not contain destination ${destinationClass.simpleName}"
+            }
 
             _stack = _stack.dropLast(_stack.size - index - ONE).toMutableList()
         }
@@ -327,19 +331,22 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
         }
 
     private fun checkStackSize() {
-        if (_stack.size == ONE) throw error("stack size cannot be less than 1")
+        require(_stack.size != ONE) { "stack size cannot be less than 1" }
     }
 
     private fun checkDestination(destination: Destination) {
         val hostNames = destination::class.annotations.filterIsInstance<Host>()
-        if (hostNames.isNotEmpty() && hostNames.none { it.hostName == hostName })
-            throw error("destination: ${destination::class.simpleName} can't be add in host: $hostName")
+        require(hostNames.isEmpty() || hostNames.any { it.hostName == hostName }) {
+            "destination: ${destination::class.simpleName} can't be add in host: $hostName"
+        }
     }
 
     private fun checkDestination(destinationClass: KClass<out Destination>) {
         val hostNames = destinationClass.annotations.filterIsInstance<Host>()
-        if (hostNames.isNotEmpty() && hostNames.none { it.hostName == hostName })
-            throw error("destination: ${destinationClass.simpleName} can't be add in host: $hostName")
+
+        require(hostNames.isEmpty() || hostNames.any { it.hostName == hostName }) {
+            "destination: ${destinationClass.simpleName} can't be add in host: $hostName"
+        }
     }
 
     /**

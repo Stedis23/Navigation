@@ -119,5 +119,6 @@ public class CommandsChainBuilder(state: NavigationState) {
      * @throws Error if the command chain is empty.
      */
     public fun build(): NavigationState =
-        lastCommand?.execute(currentState) ?: throw error("command chain cannot be empty")
+        lastCommand?.execute(currentState)
+            ?: throw IllegalArgumentException("command chain cannot be empty")
 }

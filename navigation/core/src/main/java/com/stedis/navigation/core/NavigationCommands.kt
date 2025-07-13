@@ -2,12 +2,12 @@ package com.stedis.navigation.core
 
 import kotlin.reflect.KClass
 
-class ForwardCommand(
+public class ForwardCommand(
     private val destination: Destination,
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 addDestination(destination)
@@ -24,11 +24,11 @@ class ForwardCommand(
         }
 }
 
-class BackCommand(
+public class BackCommand(
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 popDestination()
@@ -45,12 +45,12 @@ class BackCommand(
         }
 }
 
-class BackToCommand(
+public class BackToCommand(
     private val destinationClass: KClass<out Destination>,
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 popToDestination(destinationClass)
@@ -67,12 +67,12 @@ class BackToCommand(
         }
 }
 
-class ReplaceCommand(
+public class ReplaceCommand(
     private val destination: Destination,
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 replaceDestination(destination)
@@ -89,12 +89,12 @@ class ReplaceCommand(
         }
 }
 
-class OnNewRootCommand(
+public class OnNewRootCommand(
     private val destination: Destination,
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 popToDestination(stack.first())
@@ -115,11 +115,11 @@ class OnNewRootCommand(
         }
 }
 
-class OnRootCommand(
+public class OnRootCommand(
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 popToDestination(stack.first())
@@ -136,12 +136,12 @@ class OnRootCommand(
         }
 }
 
-class ChangeSelectedChildHostCommand(
+public class ChangeSelectedChildHostCommand(
     private val hostName: String,
     private val context: (TraversalContext.() -> TraversalContext)? = null,
 ) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         if (context == null) {
             navigationState.buildNewStateWithCurrentHost {
                 setSelectedChild(hostName)
@@ -158,9 +158,9 @@ class ChangeSelectedChildHostCommand(
         }
 }
 
-class ChangeCurrentHostCommand(private val hostName: String) : NavigationCommand {
+public class ChangeCurrentHostCommand(private val hostName: String) : NavigationCommand {
 
-    override fun execute(navigationState: NavigationState): NavigationState =
+    public override fun execute(navigationState: NavigationState): NavigationState =
         navigationState.buildNewState {
             setCurrentHost(hostName)
         }

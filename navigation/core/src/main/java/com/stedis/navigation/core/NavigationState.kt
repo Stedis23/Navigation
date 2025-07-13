@@ -11,7 +11,7 @@ public typealias StateBuilderDeclaration = NavigationStateBuilder.() -> Unit
  * @property currentHost The currently active navigation host.
  * @property currentDestination The currently active destination within the current host.
  */
-data class NavigationState(
+public data class NavigationState(
     val hosts: List<NavigationHost>,
     val currentHost: NavigationHost,
     val currentDestination: Destination,
@@ -156,7 +156,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     private fun updateCurrentHost(hostName: String, hosts: List<NavigationHost>) {
         currentHost = hosts.find { it.hostName == hostName }
-            ?: throw error("state does not contain host: $hostName")
+            ?: throw IllegalArgumentException("state does not contain host: $hostName")
     }
 
     /**
@@ -176,7 +176,9 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     ) =
         apply {
             _hosts.forEach {
-                if (it.hostName == hostName) throw error("Multiple hosts have name: $hostName, hostName must be unique.")
+                require(it.hostName != hostName) {
+                    "Multiple hosts have name: $hostName, hostName must be unique."
+                }
             }
             _hosts += NavigationHost(hostName, initialDestination, body)
         }
@@ -236,7 +238,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     @NavigationDslMarker
     public infix fun TraversalContext.perform(body: HostBuilderDeclaration): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
-            ?: throw error("The given path was not found in the host tree")
+            ?: throw IllegalArgumentException("The given path was not found in the host tree")
         updateHosts { modifyHost(_hosts, path, body).toMutableList() }
 
         return this@NavigationStateBuilder
@@ -266,10 +268,11 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      */
     public fun TraversalContext.switch(): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points)
-            ?: throw error("The given path was not found in the host tree")
+            ?: throw IllegalArgumentException("The given path was not found in the host tree")
 
         val head = path.first()
-        val root = _hosts.find { it.hostName == head } ?: throw error("root host can`t be null")
+        val root = _hosts.find { it.hostName == head }
+            ?: throw IllegalArgumentException("root host can`t be null")
 
         this@NavigationStateBuilder._hosts = hosts.map {
             if (it.hostName == head) {

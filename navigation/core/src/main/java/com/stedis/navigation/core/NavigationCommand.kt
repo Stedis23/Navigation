@@ -6,7 +6,7 @@ package com.stedis.navigation.core
  * Implementations of this interface define specific actions that can be taken
  * to change the current navigation state within the application.
  */
-interface NavigationCommand {
+public interface NavigationCommand {
 
     /**
      * Executes the navigation command, returning a new instance of [NavigationState].
@@ -45,7 +45,7 @@ interface NavigationCommand {
 public fun NavigationCommand(params: StateBuilderDeclaration) =
     object : NavigationCommand {
 
-        override fun execute(navigationState: NavigationState): NavigationState =
+        public override fun execute(navigationState: NavigationState): NavigationState =
             navigationState.buildNewState(params)
     }
 
@@ -79,6 +79,6 @@ public fun NavigationCommand(params: StateBuilderDeclaration) =
 public fun CurrentHostNavigationCommand(params: HostBuilderDeclaration) =
     object : NavigationCommand {
 
-        override fun execute(navigationState: NavigationState): NavigationState =
+        public override fun execute(navigationState: NavigationState): NavigationState =
             navigationState.buildNewStateWithCurrentHost(params)
     }

@@ -11,7 +11,7 @@ private const val ONE = 1
  * @property hosts A list of navigation hosts involved in the traversal.
  * @property points A list of strings representing the points visited during the traversal.
  */
-data class TraversalContext(
+public data class TraversalContext(
     val hosts: List<NavigationHost>,
     val points: List<String>,
 )
@@ -40,9 +40,10 @@ public fun emptyTraversalContext(): TraversalContext =
  */
 public fun TraversalContext.getHostsPath(): List<NavigationHost> {
     val path: List<String> = findShortestPathBFS(hosts, points)
-        ?: throw error("The given path was not found in the host tree")
+        ?: throw IllegalArgumentException("The given path was not found in the host tree")
 
-    val root = hosts.find { it.hostName == path.first() } ?: throw error("root host can`t be null")
+    val root = hosts.find { it.hostName == path.first() }
+        ?: throw IllegalArgumentException("root host can`t be null")
 
     val hostsPath = mutableListOf(root)
 
@@ -51,7 +52,7 @@ public fun TraversalContext.getHostsPath(): List<NavigationHost> {
         var currentHost: NavigationHost = root
         while (tail.isNotEmpty()) {
             currentHost = currentHost.children.find { it.hostName == tail.first() }
-                ?: throw error("host ${tail.first()} not exist")
+                ?: throw IllegalArgumentException("host ${tail.first()} not exist")
             hostsPath.add(currentHost)
             tail = tail.toMutableList().drop(ONE)
         }
@@ -93,7 +94,8 @@ internal fun modifyHost(
 ): List<NavigationHost> {
     val head = path.first()
     val tail = path.drop(ONE)
-    val root = roots.find { it.hostName == head } ?: throw error("root host can`t be null")
+    val root = roots.find { it.hostName == head }
+        ?: throw IllegalArgumentException("root host can`t be null")
 
     return roots.map {
         if (it.hostName == head) {
@@ -147,8 +149,8 @@ private fun NavigationHost.modifyChild(
 internal fun findShortestPathBFS(roots: List<NavigationHost>, points: List<String>): List<String>? {
     val queue: LinkedList<Pair<NavigationHost, List<String>>> = LinkedList()
 
-    for (root in roots) {
-        queue.add(Pair(root, listOf(root.hostName)))
+    roots.forEach {
+        queue.add(Pair(it, listOf(it.hostName)))
     }
 
     while (queue.isNotEmpty()) {
@@ -158,8 +160,8 @@ internal fun findShortestPathBFS(roots: List<NavigationHost>, points: List<Strin
             return path
         }
 
-        for (child in currentNode.children) {
-            queue.add(Pair(child, path + child.hostName))
+        currentNode.children.forEach {
+            queue.add(Pair(it, path + it.hostName))
         }
     }
 
