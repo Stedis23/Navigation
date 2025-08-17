@@ -1,6 +1,5 @@
 package com.stedis.samples.ui.panes.info
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,30 +13,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.stedis.navigation.compose.LocalNavigationHost
+import androidx.core.net.toUri
 import com.stedis.navigation.compose.LocalNavigationManager
+import com.stedis.navigation.core.execute
 import com.stedis.samples.R
-import com.stedis.samples.navigation.destinations.WebPageDestination
+import com.stedis.samples.navigation.commands.OpenWebPageCommand
 import com.stedis.samples.navigation.ext.back
-import com.stedis.samples.navigation.ext.forward
 import com.stedis.samples.ui.component.TopBar
 
-private const val GITHUB_URL = "https://github.com/Stedis23/Navigation"
+private val GITHUB_URL = "https://github.com/Stedis23/Navigation".toUri()
 
 @Composable
 fun MoreInfoPane() {
     val navigationManager = LocalNavigationManager.current
-    val currentNavigationHost = LocalNavigationHost.current
+    val currentContext = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -63,15 +64,17 @@ fun MoreInfoPane() {
             Spacer(modifier = Modifier.weight(1f))
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.info),
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(64.dp),
                 )
 
                 Text(
                     text = stringResource(R.string.more_info_description),
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
@@ -82,8 +85,19 @@ fun MoreInfoPane() {
 
             Column {
                 Button(
-                    onClick = { navigationManager.forward(WebPageDestination(GITHUB_URL)) },
+                    onClick = {
+                        navigationManager.execute(
+                            OpenWebPageCommand(
+                                uri = GITHUB_URL,
+                                context = currentContext,
+                            )
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
                 ) {
                     Text(text = stringResource(R.string.go_to_github))
                 }
@@ -91,8 +105,10 @@ fun MoreInfoPane() {
                 Button(
                     onClick = { navigationManager.back() },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors()
-                        .copy(containerColor = MaterialTheme.colorScheme.secondary),
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                    ),
                 ) {
                     Text(text = stringResource(R.string.back))
                 }

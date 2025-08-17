@@ -1,6 +1,5 @@
 package com.stedis.samples.ui.panes.welcome
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,15 +43,17 @@ fun WelcomePane() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Image(
+        Icon(
             painter = painterResource(R.drawable.rocket_launch),
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(150.dp),
         )
 
         Text(
             text = stringResource(R.string.welcome_description),
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
@@ -59,6 +62,10 @@ fun WelcomePane() {
         Button(
             onClick = { navigationManager.execute(ForwardToMainCommand) },
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors().copy(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
             Text(text = stringResource(R.string.welcome_start))
         }

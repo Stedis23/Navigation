@@ -1,7 +1,6 @@
 package com.stedis.samples.ui.panes.friends.friend
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,15 +62,16 @@ private fun FriendProfile(friendName: String, friendDescription: String, friendA
             .padding(top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
+        Icon(
             painter = painterResource(id = friendAvatar),
             contentDescription = "Friend Avatar",
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .size(200.dp)
                 .padding(16.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer)
-                .border(BorderStroke(3.dp, MaterialTheme.colorScheme.surface), CircleShape),
+                .border(BorderStroke(3.dp, MaterialTheme.colorScheme.onBackground), CircleShape),
         )
 
         Column(
@@ -87,9 +88,13 @@ private fun FriendProfile(friendName: String, friendDescription: String, friendA
             Text(
                 text = friendName,
                 fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
-            Text(text = friendDescription)
+            Text(
+                text = friendDescription,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
         }
     }
 }

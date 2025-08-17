@@ -1,6 +1,5 @@
 package com.stedis.samples.ui.panes.news
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,9 +55,10 @@ private fun NewsCard(newsId: Int) {
             )
             .padding(16.dp),
     ) {
-        Image(
+        Icon(
             painter = painterResource(R.drawable.newspaper),
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
@@ -68,12 +69,14 @@ private fun NewsCard(newsId: Int) {
         Text(
             text = stringResource(R.string.news_title) + newsId,
             fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(8.dp),
         )
 
         Text(
             text = stringResource(R.string.news_description),
             fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
     }
