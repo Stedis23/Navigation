@@ -1,5 +1,7 @@
 package com.stedis.navigation.core
 
+import kotlinx.coroutines.cancel
+
 private const val ONE = 1
 
 public typealias StateBuilderDeclaration = NavigationStateBuilder.() -> Unit
@@ -38,7 +40,9 @@ public fun NavigationState(
     initialHost: NavigationHost,
     params: StateBuilderDeclaration? = null
 ): NavigationState =
-    NavigationStateBuilder(initialHost).also { if (params != null) it.params() }.build()
+    NavigationStateBuilder(initialHost)
+        .also { if (params != null) it.params() }
+        .build()
 
 /**
  * Creates a new instance of [NavigationState], changing only the current root host.
@@ -72,7 +76,9 @@ public fun NavigationState.buildNewStateWithCurrentHost(params: HostBuilderDecla
 public fun NavigationState.buildNewState(params: StateBuilderDeclaration? = null): NavigationState =
     NavigationStateBuilder(currentHost)
         .updateHosts { this@buildNewState.hosts }
+        .setScopeDestinations()
         .also { if (params != null) it.params() }
+        .cancelDeadScopes()
         .build()
 
 /**
@@ -95,6 +101,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
 
     private var _hosts: MutableList<NavigationHost> = mutableListOf(initialHost)
         set(value) {
+
             field = value
             updateTraversalContext()
         }
@@ -120,12 +127,58 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     public var traversalContext: TraversalContext = emptyTraversalContext().copy(hosts = _hosts)
         private set
 
+    private var scopeDestinations: List<ScopeDestination> = findScopeDestinations(_hosts)
+
+    private fun findScopeDestinations(hosts: List<NavigationHost>): List<ScopeDestination> {
+        val scopeDestinations = mutableListOf<ScopeDestination>()
+        traverseHosts(hosts, scopeDestinations)
+        return scopeDestinations
+    }
+
+
+    private fun traverseHosts(
+        hosts: List<NavigationHost>,
+        scopeDestinations: MutableList<ScopeDestination>
+    ) {
+        hosts.forEach { host ->
+            host.stack.forEach { destination ->
+                if (destination is ScopeDestination) {
+                    scopeDestinations.add(destination)
+                }
+            }
+
+            traverseHosts(host.children, scopeDestinations)
+        }
+    }
+
+    internal fun cancelDeadScopes() =
+        apply {
+            val newScopeDestinations = findScopeDestinations(_hosts)
+            cancelDeadScopes(newScopeDestinations, scopeDestinations)
+        }
+
+    private fun cancelDeadScopes(
+        currentScopeDestinations: List<ScopeDestination>,
+        previousScopeDestinations: List<ScopeDestination>
+    ) {
+        val toCancel = previousScopeDestinations.filterNot { previous ->
+            currentScopeDestinations.any { current -> current == previous }
+        }
+
+        toCancel.forEach { it.destinationScope.cancel() }
+    }
+
     private fun updateTraversalContext() {
         traversalContext = TraversalContext(
             hosts = _hosts,
             points = traversalContext.points
         )
     }
+
+    internal fun setScopeDestinations() =
+        apply {
+            scopeDestinations = findScopeDestinations(_hosts)
+        }
 
     /**
      * Updates the list of navigation hosts based on the provided lambda function.
