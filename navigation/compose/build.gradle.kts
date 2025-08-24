@@ -51,7 +51,9 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.adaptive.layout)
     implementation("io.github.stedis23:navigation-core:0.5.1")
+
 }
 
 publishing {

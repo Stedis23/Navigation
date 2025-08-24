@@ -1,4 +1,5 @@
 [versions]
+adaptiveLayout = "1.2.0-alpha11"
 agp = "8.11.1"
 fragmentKtx = "1.8.8"
 kotlin = "2.2.0"
@@ -8,6 +9,7 @@ activityCompose = "1.10.1"
 composeBom = "2025.06.01"
 
 [libraries]
+androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptiveLayout" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
