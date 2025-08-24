@@ -81,6 +81,8 @@ public fun NavigationHost(
  *         null if no such destination exists in the stack.
  */
 public fun NavigationHost.findFirst(destinationClass: KClass<out Destination>): Destination? {
+    if (stack.isEmpty()) return null
+
     val index = stack.indexOfFirst { it::class == destinationClass }
     if (index == NOT_FOUND_INDEX) return null
     return stack[index]
@@ -95,6 +97,8 @@ public fun NavigationHost.findFirst(destinationClass: KClass<out Destination>): 
  *         specified destination does not exist in the stack.
  */
 public fun NavigationHost.findFirst(destination: Destination): Destination? {
+    if (stack.isEmpty()) return null
+
     val index = if (stack.any { it == destination }) {
         stack.indexOf(destination)
     } else return null
@@ -111,6 +115,8 @@ public fun NavigationHost.findFirst(destination: Destination): Destination? {
  *         null if no such destination exists in the stack.
  */
 public fun NavigationHost.findLast(destinationClass: KClass<out Destination>): Destination? {
+    if (stack.isEmpty()) return null
+
     val index = stack.indexOfLast { it::class == destinationClass }
     if (index == NOT_FOUND_INDEX) return null
     return stack[index]
@@ -125,6 +131,8 @@ public fun NavigationHost.findLast(destinationClass: KClass<out Destination>): D
  *         specified destination does not exist in the stack.
  */
 public fun NavigationHost.findLast(destination: Destination): Destination? {
+    if (stack.isEmpty()) return null
+
     val index = if (stack.any { it == destination }) {
         val reverseStack = stack.toMutableList()
         reverseStack.reverse()
@@ -132,6 +140,50 @@ public fun NavigationHost.findLast(destination: Destination): Destination? {
     } else return null
 
     return stack[index]
+}
+
+/**
+ * Checks for the presence of consecutive duplicates of a specific destination type in the navigation stack.
+ *
+ * This function scans through the stack to determine if there are any consecutive elements
+ * of the specified destination type. If no type is specified, it uses the type of the last
+ * element in the stack as the target for duplicate checking.
+ *
+ * The function returns `true` if it finds two or more consecutive elements of the same target type,
+ * regardless of their object equality. This is useful for detecting navigation patterns where
+ * the same screen type appears consecutively in the back stack.
+ *
+ * @param destinationClass The class of the [Destination] type to check for consecutive duplicates.
+ *                         If `null`, the type of the last element in the stack will be used.
+ * @return `true` if consecutive duplicates of the target type are found, `false` otherwise.
+ *         Also returns `false` if the stack is empty.
+ *
+ * Example usage:
+ * ```
+ * val hasDuplicates = navigationHost.hasConsecutiveDuplicates(ProfileDestination::class)
+ * if (hasDuplicates) {
+ *     // Clean up consecutive duplicates
+ * }
+ * ```
+ *
+ * @see removeConsecutiveDuplicates
+ */
+public fun NavigationHost.hasConsecutiveDuplicates(destinationClass: KClass<out Destination>? = null): Boolean {
+    if (stack.isEmpty()) return false
+
+    val targetDestination = destinationClass ?: stack.last()::class
+    var previous: Destination? = null
+
+    for (current in stack) {
+        if (current::class == targetDestination) {
+            if (previous != null && current::class == previous::class) {
+                return true
+            }
+            previous = current
+        }
+    }
+
+    return false
 }
 
 /**
@@ -348,6 +400,44 @@ public class NavigationHostBuilder(private val hostName: String, initialDestinat
             "destination: ${destinationClass.simpleName} can't be add in host: $hostName"
         }
     }
+
+    /**
+     * Removes consecutive duplicates of a specific type from the stack.
+     *
+     * This function iterates through the stack in reverse order and constructs a new stack
+     * that contains only unique instances of the specified type. If no type is specified,
+     * the function will consider the type of the last element in the stack.
+     *
+     * The removal of duplicates is based on the equality of the objects themselves.
+     * If two consecutive elements are of the same type and are equal, the second occurrence
+     * will be removed from the new stack. The resulting stack will replace the original stack.
+     *
+     * @param destinationClass The class of the destination type to check for duplicates.
+     *                         If null, the type of the last element in the stack will be used.
+     * @return A new [NavigationHostBuilder] instance.
+     */
+    public fun removeConsecutiveDuplicates(destinationClass: KClass<out Destination>? = null) =
+        apply {
+            val newStack = mutableListOf<Destination>()
+            val targetDestination = destinationClass ?: _stack.last()::class
+            var targetDestinationIndex = newStack.indexOfLast { it::class == targetDestination }
+
+            if (targetDestinationIndex == NOT_FOUND_INDEX) {
+                targetDestinationIndex = _stack.size - 1
+            }
+
+            var previous: Destination? = null
+
+            for (i in targetDestinationIndex downTo 0) {
+                val current = _stack[i]
+                if (previous == null || current::class != previous::class) {
+                    newStack.add(0, current)
+                    previous = current
+                }
+            }
+
+            _stack = newStack
+        }
 
     /**
      * Builds a new [NavigationHost] instance.
