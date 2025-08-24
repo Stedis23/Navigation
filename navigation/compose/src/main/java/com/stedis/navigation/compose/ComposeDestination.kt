@@ -23,5 +23,8 @@ import com.stedis.navigation.core.Destination
  */
 interface ComposeDestination : Destination {
 
+    public val metadata: Map<Any, Any>
+        get() = emptyMap()
+
     public val composable: @Composable (Destination) -> Unit
 }
