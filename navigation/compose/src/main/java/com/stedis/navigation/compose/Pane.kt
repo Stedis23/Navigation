@@ -70,22 +70,26 @@ val LocalDestination = compositionLocalOf<Destination> {
  * @param transitionSpec A [ContentTransform] defining the animation used when transitioning
  * to this destination. The default is a fade-in/fade-out animation. You can provide custom
  * animations to control the visual behavior during navigation transitions.
+ *
+ * @param key An optional key component to add to the state save/restore key. This is useful to force state reset
+ * for the same destination if it should be treated as a distinct instance (e.g., viewing different items by ID).
+ * The final key is `destination.toString() + key`.
  */
 @Composable
 public fun Pane(
     destination: ComposeDestination,
     modifier: Modifier = Modifier,
     transitionSpec: ContentTransform = fadeIn().togetherWith(fadeOut()),
+    key: String? = null,
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
-
     CompositionLocalProvider(LocalDestination provides destination) {
         AnimatedContent(
             targetState = destination,
             transitionSpec = { transitionSpec using null },
         ) { destination ->
             saveableStateHolder.SaveableStateProvider(
-                key = destination.toString(),
+                key = destination.toString() + (key ?: ""),
                 content = {
                     Box(modifier = modifier) {
                         destination.composable.invoke(destination)
@@ -132,12 +136,17 @@ public fun Pane(
  * for transitions between destinations. This includes animations for forward navigation, back navigation,
  * replacing the current destination, changing hosts, and a default fallback animation. You can customize
  * these animations by providing your own [NavigationAnimations] instance.
+ *
+ * @param key An optional key component added to the state save/restore key for the current destination.
+ * See the other [Pane] overload for details.
+ *
  */
 @Composable
 public fun Pane(
     navigationHost: NavigationHost,
     modifier: Modifier = Modifier,
     navigationAnimations: NavigationAnimations = NavigationAnimations(),
+    key: String? = null,
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
     var previousHost by remember { mutableStateOf(navigationHost) }
@@ -162,7 +171,7 @@ public fun Pane(
             },
         ) { destination ->
             saveableStateHolder.SaveableStateProvider(
-                key = destination.toString(),
+                key = destination.toString() + (key ?: ""),
                 content = {
                     Box(modifier = modifier) {
                         (destination as? ComposeDestination)?.let {
