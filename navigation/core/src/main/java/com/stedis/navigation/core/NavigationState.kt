@@ -377,3 +377,72 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             currentDestination = currentDestination,
         )
 }
+
+/**
+ * Retrieves the traversal context for a specific navigation host within the navigation state.
+ *
+ * This method searches through all hosts in the navigation state to find a path from any root host
+ * to the specified target host. The traversal context contains both the complete list of hosts
+ * and the specific path sequence required to reach the target host.
+ *
+ * The search is performed using a depth-first traversal approach, examining each host and its
+ * children recursively until the target host is found or all possibilities are exhausted.
+ *
+ * @param target The target [NavigationHost] for which to find the traversal context.
+ * @return A [TraversalContext] object containing:
+ *         - `hosts`: The complete list of hosts in the navigation state
+ *         - `points`: The ordered list of host names representing the path to the target host
+ *
+ *         Returns `null` if the target host is not found within the navigation state hierarchy.
+ *
+ * @throws IllegalStateException if the navigation state contains circular references that
+ *         could cause infinite recursion (handled by the recursive search depth limits).
+ *
+ * Example usage:
+ * ```
+ * val context = navigationState.getTraversalContextForHost(targetHost)
+ * if (context != null) {
+ *     val pathToTarget = context.points
+ *     val allHosts = context.hosts
+ * }
+ * ```
+ *
+ * @see TraversalContext
+ * @see NavigationHost
+ * @see findHostPathRecursively
+ */
+fun NavigationState.getTraversalContextForHost(target: NavigationHost): TraversalContext? {
+    this.hosts.forEach {
+        val path = findHostPathRecursively(it, target, mutableListOf())
+        if (path != null) {
+            return TraversalContext(
+                hosts = hosts,
+                points = path,
+            )
+        }
+    }
+
+    return null
+}
+
+private fun findHostPathRecursively(
+    current: NavigationHost,
+    target: NavigationHost,
+    path: MutableList<String>
+): List<String>? {
+    path.add(current.hostName)
+
+    if (current == target) {
+        return path.toList()
+    }
+
+    for (child in current.children) {
+        val result = findHostPathRecursively(child, target, path)
+        if (result != null) {
+            return result
+        }
+    }
+
+    path.removeAt(path.size - 1)
+    return null
+}
