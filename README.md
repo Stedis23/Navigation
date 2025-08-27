@@ -8,10 +8,10 @@ Navigation does not limit us!
 ```kotlin
 
 // Add dependencies to use without UI
-implementation("io.github.stedis23:navigation-core:0.5.1")
+implementation("io.github.stedis23:navigation-core:0.6.0")
 
 // For project with Compose
-implementation("io.github.stedis23:navigation-compose:0.5.1")
+implementation("io.github.stedis23:navigation-compose:0.6.0")
 
 ```
 
