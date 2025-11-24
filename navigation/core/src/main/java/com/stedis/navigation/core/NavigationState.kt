@@ -135,7 +135,6 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
         return scopeDestinations
     }
 
-
     private fun traverseHosts(
         hosts: List<NavigationHost>,
         scopeDestinations: MutableList<ScopeDestination>
@@ -298,29 +297,31 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
     }
 
     /**
-     * Switches the current navigation context to a new state based on the shortest path
-     * derived from the current [TraversalContext].
+     * Switches the current navigation context to the host specified by the [hostName] parameter
+     * based on the shortest path derived from the current [TraversalContext].
      *
-     * This function finds the shortest path in the host tree using the BFS algorithm
-     * based on the hosts and points in the current traversal context. It updates the
-     * hosts in the [NavigationStateBuilder] according to the first host in the path.
-     * If the path consists of only one host, it remains unchanged; otherwise, the
-     * child host corresponding to the next point in the path is selected.
+     * This function finds the shortest path in the host tree using the BFS algorithm,
+     * starting from the hosts and points in the current traversal context and targeting
+     * the specified [hostName]. It updates the hosts in the [NavigationStateBuilder]
+     * according to the first host in the path. If the path consists of only one host,
+     * it remains unchanged; otherwise, the child host corresponding to the next point
+     * in the path is selected.
      *
-     * Example of using perform:
+     * Example of using switch with hostName:
      * ```
      * inside("firstHost")
      *  .inside("secondHost")
-     *  .switch()
+     *  .switch("targetHost")
      * ```
      *
+     * @param hostName The name of the host to switch to.
      * @return The updated [NavigationStateBuilder] instance with the modified hosts.
      *
      * @throws IllegalArgumentException If the shortest path cannot be found in the host tree
      *                                  or if the root host cannot be determined.
      */
-    public fun TraversalContext.switch(): NavigationStateBuilder {
-        val path: List<String> = findShortestPathBFS(hosts, points)
+    public fun TraversalContext.switch(hostName: String): NavigationStateBuilder {
+        val path: List<String> = findShortestPathBFS(hosts, points + hostName)
             ?: throw IllegalArgumentException("The given path was not found in the host tree")
 
         val head = path.first()
