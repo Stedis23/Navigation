@@ -1,5 +1,11 @@
 package com.stedis.navigation.compose.scenes
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.stedis.navigation.compose.ComposeDestination
+import com.stedis.navigation.compose.NavigationAnimations
 import com.stedis.navigation.compose.Pane
 import com.stedis.navigation.compose.Scene
 import com.stedis.navigation.compose.SceneStrategy
@@ -46,32 +53,51 @@ public class ListDetailScene : Scene {
     override val composable: @Composable ((NavigationHost) -> Unit) = { host ->
         val lastTwoDestinations = host.stack.takeLast(2) as? List<ComposeDestination>
             ?: throw error("all destinations must be ComposeDestination")
-        val onlyListPane = lastTwoDestinations.last().metadata.containsKey(LIST_PANE_KEY)
 
-        val (previousPaneWeight, currentPaneWeight) = calculatePaneWeights(
+        val hasDetailPane = lastTwoDestinations.last().metadata.containsKey(DETAIL_PANE_KEY)
+        val onlyListPane = !hasDetailPane
+
+        val listDestination = if (onlyListPane) {
+            lastTwoDestinations.last()
+        } else {
+            lastTwoDestinations.first()
+        }
+
+        val (listPaneWeight, detailPaneWeight) = calculatePaneWeights(
             lastTwoDestinations,
             onlyListPane
         )
 
-        val previousStack = if (onlyListPane) host.stack else host.stack.dropLast(1)
+        val listStack = if (onlyListPane) {
+            host.stack
+        } else {
+            host.stack.dropLast(1)
+        }
+        val listHost = host.copy(
+            stack = listStack,
+            currentDestination = listDestination
+        )
 
         Row(Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(previousPaneWeight)) {
+            Box(modifier = Modifier.weight(listPaneWeight)) {
                 Pane(
-                    destination = previousStack.last() as ComposeDestination,
-                    key = if (onlyListPane) PaneKey.CURRENT_PANE else PaneKey.PREVIOUS_PANE,
+                    navigationHost = listHost,
+                    key = LIST_PANE_KEY,
                 )
             }
 
-            Box(modifier = Modifier.weight(currentPaneWeight)) {
+            Box(modifier = Modifier.weight(detailPaneWeight)) {
                 if (onlyListPane) {
                     val metadata =
-                        lastTwoDestinations.last().metadata[LIST_PANE_KEY] as ListPaneMetaData
+                        listDestination.metadata[LIST_PANE_KEY] as ListPaneMetaData
                     metadata.placeholder()
                 } else {
                     Pane(
-                        destination = host.stack.last() as ComposeDestination,
-                        key = PaneKey.CURRENT_PANE,
+                        navigationHost = host,
+                        key = DETAIL_PANE_KEY,
+                        navigationAnimations = NavigationAnimations(
+                            replaceAnimation = fadeIn().togetherWith(fadeOut()),
+                        )
                     )
                 }
             }
