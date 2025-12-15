@@ -30,18 +30,14 @@ public interface Scene {
  *
  * The navigation system evaluates a list of strategies in order until one returns a non-null scene.
  */
-public interface SceneStrategy {
+    public interface SceneStrategy {
 
-    /**
-     * Calculates and returns the appropriate [Scene] for the given [NavigationHost] state.
-     *
-     * @param navigationHost The root navigation controller and state holder for the application.
-     * @return The [Scene] to be rendered, or `null` if this strategy is not applicable
-     *         for the current state.
-     */
-    @Composable
-    public fun calculateScene(navigationHost: NavigationHost): Scene?
-}
+        @Composable
+        public fun calculateScene(navigationHost: NavigationHost): Scene?
+    }
+
+public infix operator fun SceneStrategy.plus(otherSceneStrategy: SceneStrategy): List<SceneStrategy> =
+    listOf(this, otherSceneStrategy)
 
 /**
  * Creates a sequential chain of two [SceneStrategy] objects.

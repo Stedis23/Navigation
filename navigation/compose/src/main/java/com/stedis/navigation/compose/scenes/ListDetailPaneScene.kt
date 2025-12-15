@@ -1,5 +1,6 @@
 package com.stedis.navigation.compose.scenes
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -40,12 +41,12 @@ public object ListDetailSceneStrategy : SceneStrategy {
     }
 
     private fun hasListAndDetailPane(destinations: List<ComposeDestination>): Boolean {
-        return destinations.first().metadata.containsKey(ListDetailScene.LIST_PANE_KEY) &&
-                destinations.last().metadata.containsKey(ListDetailScene.DETAIL_PANE_KEY)
+        return destinations.first().metadata.containsKey(PaneKey.LIST_PANE_KEY) &&
+                destinations.last().metadata.containsKey(PaneKey.DETAIL_PANE_KEY)
     }
 
     private fun hasOnlyListPane(destinations: List<ComposeDestination>): Boolean {
-        return destinations.last().metadata.containsKey(ListDetailScene.LIST_PANE_KEY)
+        return destinations.last().metadata.containsKey(PaneKey.LIST_PANE_KEY)
     }
 }
 
@@ -54,7 +55,7 @@ public class ListDetailScene : Scene {
         val lastTwoDestinations = host.stack.takeLast(2) as? List<ComposeDestination>
             ?: throw error("all destinations must be ComposeDestination")
 
-        val hasDetailPane = lastTwoDestinations.last().metadata.containsKey(DETAIL_PANE_KEY)
+        val hasDetailPane = lastTwoDestinations.last().metadata.containsKey(PaneKey.DETAIL_PANE_KEY)
         val onlyListPane = !hasDetailPane
 
         val listDestination = if (onlyListPane) {
@@ -80,21 +81,29 @@ public class ListDetailScene : Scene {
 
         Row(Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(listPaneWeight)) {
+                val paneKey = (listHost.currentDestination as? ComposeDestination)
+                    ?.metadata[PaneKey.PANE_KEY] as? String
+                    ?: PaneKey.DEFAULT_PANE
+
                 Pane(
                     navigationHost = listHost,
-                    key = LIST_PANE_KEY,
+                    key = paneKey,
                 )
             }
 
             Box(modifier = Modifier.weight(detailPaneWeight)) {
                 if (onlyListPane) {
                     val metadata =
-                        listDestination.metadata[LIST_PANE_KEY] as ListPaneMetaData
+                        listDestination.metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
                     metadata.placeholder()
                 } else {
+                    val paneKey = (host.currentDestination as? ComposeDestination)
+                        ?.metadata[PaneKey.PANE_KEY] as? String
+                        ?: PaneKey.DEFAULT_PANE
+
                     Pane(
                         navigationHost = host,
-                        key = DETAIL_PANE_KEY,
+                        key = paneKey,
                         navigationAnimations = NavigationAnimations(
                             replaceAnimation = fadeIn().togetherWith(fadeOut()),
                         )
@@ -109,24 +118,29 @@ public class ListDetailScene : Scene {
         onlyListPane: Boolean
     ): Pair<Float, Float> {
         val metadata = if (onlyListPane) {
-            destinations.last().metadata[LIST_PANE_KEY] as ListPaneMetaData
+            destinations.last().metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
         } else {
-            destinations.first().metadata[LIST_PANE_KEY] as ListPaneMetaData
+            destinations.first().metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
         }
         val weight = metadata.weight
         return weight to (1.0f - weight)
     }
 
     public companion object {
-        internal const val LIST_PANE_KEY = "ListPane"
-        internal const val DETAIL_PANE_KEY = "DetailPane"
 
         public fun listPane(
             placeholder: @Composable (() -> Unit) = {},
             weight: Float = 0.5f,
-        ): Map<Any, Any> = mapOf(LIST_PANE_KEY to ListPaneMetaData(placeholder, weight))
+        ): Map<Any, Any> =
+            mapOf(
+                PaneKey.LIST_PANE_KEY to ListPaneMetaData(placeholder, weight),
+                PaneKey.PANE_KEY to PaneKey.LIST_PANE_KEY,
+            )
 
-        public fun detailPane(): Map<Any, Any> = mapOf(DETAIL_PANE_KEY to true)
+        public fun detailPane(): Map<Any, Any> = mapOf(
+            PaneKey.DETAIL_PANE_KEY to true,
+            PaneKey.PANE_KEY to PaneKey.DETAIL_PANE_KEY,
+        )
     }
 }
 

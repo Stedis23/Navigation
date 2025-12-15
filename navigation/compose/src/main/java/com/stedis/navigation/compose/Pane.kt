@@ -83,21 +83,22 @@ public fun Pane(
     key: String? = null,
 ) {
     val saveableStateHolder = LocalSaveableStateHolder.current
-    CompositionLocalProvider(LocalDestination provides destination) {
-        AnimatedContent(
-            targetState = destination,
-            transitionSpec = { transitionSpec using null },
-        ) { destination ->
-            saveableStateHolder.SaveableStateProvider(
-                key = destination.toString() + (key ?: ""),
-                content = {
+    val stateKey = destination.toString() + (key ?: "")
+    saveableStateHolder.SaveableStateProvider(
+        key = stateKey,
+        content = {
+            CompositionLocalProvider(LocalDestination provides destination) {
+                AnimatedContent(
+                    targetState = destination,
+                    transitionSpec = { transitionSpec using null },
+                ) { destination ->
                     Box(modifier = modifier) {
                         destination.composable.invoke(destination)
                     }
                 }
-            )
+            }
         }
-    }
+    )
 }
 
 /**
@@ -156,32 +157,33 @@ public fun Pane(
     }
 
     val currentDestination = navigationHost.currentDestination
-    CompositionLocalProvider(
-        LocalNavigationHost provides navigationHost,
-        LocalDestination provides currentDestination,
-    ) {
-        AnimatedContent(
-            targetState = currentDestination,
-            transitionSpec = {
-                getTransitionSpec(
-                    previousHost,
-                    navigationHost,
-                    navigationAnimations,
-                ) using null
-            },
-        ) { destination ->
-            saveableStateHolder.SaveableStateProvider(
-                key = destination.toString() + (key ?: ""),
-                content = {
+    val stateKey = currentDestination.toString() + (key ?: "")
+    saveableStateHolder.SaveableStateProvider(
+        key = stateKey,
+        content = {
+            CompositionLocalProvider(
+                LocalNavigationHost provides navigationHost,
+                LocalDestination provides currentDestination,
+            ) {
+                AnimatedContent(
+                    targetState = currentDestination,
+                    transitionSpec = {
+                        getTransitionSpec(
+                            previousHost,
+                            navigationHost,
+                            navigationAnimations,
+                        ) using null
+                    },
+                ) { destination ->
                     Box(modifier = modifier) {
-                        (destination as? ComposeDestination)?.let {
-                            it.composable.invoke(it)
+                        (destination as? ComposeDestination)?.let { destination ->
+                            destination.composable.invoke(destination)
                         }
                     }
                 }
-            )
+            }
         }
-    }
+    )
 }
 
 private fun getTransitionSpec(
