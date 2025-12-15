@@ -93,7 +93,7 @@ public fun Pane(
                     transitionSpec = { transitionSpec using null },
                 ) { destination ->
                     Box(modifier = modifier) {
-                        destination.composable.invoke(destination)
+                        destination.content()
                     }
                 }
             }
@@ -157,33 +157,30 @@ public fun Pane(
     }
 
     val currentDestination = navigationHost.currentDestination
-    val stateKey = currentDestination.toString() + (key ?: "")
-    saveableStateHolder.SaveableStateProvider(
-        key = stateKey,
-        content = {
-            CompositionLocalProvider(
-                LocalNavigationHost provides navigationHost,
-                LocalDestination provides currentDestination,
-            ) {
-                AnimatedContent(
-                    targetState = currentDestination,
-                    transitionSpec = {
-                        getTransitionSpec(
-                            previousHost,
-                            navigationHost,
-                            navigationAnimations,
-                        ) using null
-                    },
-                ) { destination ->
+    CompositionLocalProvider(
+        LocalNavigationHost provides navigationHost,
+        LocalDestination provides currentDestination,
+    ) {
+        AnimatedContent(
+            targetState = currentDestination,
+            transitionSpec = {
+                getTransitionSpec(
+                    previousHost,
+                    navigationHost,
+                    navigationAnimations,
+                ) using null
+            },
+        ) { destination ->
+            saveableStateHolder.SaveableStateProvider(
+                key = destination.toString() + (key ?: ""),
+                content = {
                     Box(modifier = modifier) {
-                        (destination as? ComposeDestination)?.let { destination ->
-                            destination.composable.invoke(destination)
-                        }
+                        (destination as? ComposeDestination)?.content()
                     }
                 }
-            }
+            )
         }
-    )
+    }
 }
 
 private fun getTransitionSpec(
