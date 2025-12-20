@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,6 +21,10 @@ import com.stedis.navigation.core.NavigationHost
 import com.stedis.navigation.core.NavigationManager
 import com.stedis.navigation.core.execute
 
+internal val LocalSaveableStateHolder = compositionLocalOf<SaveableStateHolder> {
+    error("No SaveableStateHolder provided")
+}
+
 /**
  * The primary entry point for managing navigation within the application.
  * This composable function orchestrates the entire navigation lifecycle,
@@ -27,26 +32,36 @@ import com.stedis.navigation.core.execute
  * managing ViewModel instances, and coordinating the navigation state.
  *
  * This function accepts a [NavigationManager] to handle navigation commands
- * and a default [ViewModelFactory] for creating ViewModel instances associated
+ * and a default [ViewModelProvider.Factory] for creating ViewModel instances associated
  * with navigation destinations. It also offers a mechanism for customizing
  * back navigation behavior and allows for the specification of a custom action
  * when the root back action is triggered.
  *
  * Key Responsibilities:
- * - **Lifecycle Management**: Effectively manages the lifecycle of navigation states, ensuring
- *   that ViewModels are instantiated and disposed of appropriately based on the navigation stack.
- *   Use [NavigationViewModel] to allow navigation to follow the lifecycle of the viewmodel.
- * - **Default ViewModel Factory**: Supplies a default factory for creating ViewModels, ensuring
- *   that each destination has access to its required dependencies seamlessly.
- * - **Back Navigation Handling**: Implements back navigation logic, enabling users to navigate
- *   back through the stack of destinations. If the current host contains multiple destinations,
- *   it executes the back command; otherwise, it triggers the provided [onRootBack] action.
- * - **State Management**: Maintains the state of destinations, ensuring that when navigating back
- *   to a previous destination, any saved state is restored unless the destination is marked with
- *   the [NoSaveState] annotation.
- * - **Composition Local Providers**: Provides access to the navigation ViewModel, ViewModel factory,
- *   and navigation manager throughout the composition tree, allowing child composables to access
- *   these services effortlessly.
+ * - **Lifecycle Management**: Creates and manages a [MainNavigationViewModel] instance that
+ *   tracks ViewModel store owners for destinations. The lifecycle of ViewModels created via
+ *   [NavigationViewModel] is managed based on the navigation stack. Use [NavigationViewModel]
+ *   composable function within [Pane] to create ViewModels scoped to destinations.
+ * - **Default ViewModel Factory**: Supplies a default factory ([DefaultViewModelFactory]) for
+ *   creating ViewModels, ensuring that each destination has access to its required dependencies
+ *   seamlessly. The factory is provided via [LocalViewModelFactory] throughout the composition tree.
+ * - **Back Navigation Handling**: Implements back navigation logic via [BackHandler], enabling
+ *   users to navigate back through the stack of destinations. If the current host's stack contains
+ *   more than one destination, it executes the [BackCommand]; otherwise, it triggers the provided
+ *   [onRootBack] action.
+ * - **State Management**: Maintains the state of destinations using [SaveableStateHolder], ensuring
+ *   that when navigating back to a previous destination, any saved state is restored unless the
+ *   destination is marked with the [NoSaveState] annotation. Automatically cleans up state for
+ *   destinations that are no longer in the navigation stack.
+ * - **Composition Local Providers**: Provides the following composition locals throughout the
+ *   composition tree:
+ *   - [LocalNavigationManager]: Access to the [NavigationManager]
+ *   - [LocalViewModelFactory]: Access to the default ViewModel factory
+ *   - [LocalMainNavigationViewModel]: Access to the [MainNavigationViewModel] instance
+ *   - [LocalSaveableStateHolder]: Access to the [SaveableStateHolder] for state management
+ *
+ * The function automatically tracks the navigation state and cleans up ViewModel and state holder
+ * keys for destinations that are no longer available in the navigation stack.
  *
  * Example Usage:
  * ```
@@ -54,33 +69,38 @@ import com.stedis.navigation.core.execute
  *     navigationManager = rememberNavigationManager(
  *         NavigationState(
  *             NavigationHost(
- *                 hostName = Hosts.ROOT,
- *                 initialDestination = SampleDestination
+ *                 hostName = "ROOT",
+ *                 initialDestination = SampleDestination()
  *             )
  *         )
  *     )
  * ) {
- *     Pane(rememberNavigationHost("Main"))
+ *     Pane(navigationHost = rememberNavigationHost("ROOT"))
  * }
  * ```
  *
  * @param navigationManager The [NavigationManager] responsible for managing
- * the navigation state and executing navigation commands.
+ * the navigation state and executing navigation commands. Typically created via
+ * [rememberNavigationManager].
  * @param defaultViewModelFactory The [ViewModelProvider.Factory] used to create
  * ViewModels for destinations. Defaults to [DefaultViewModelFactory].
  * @param backHandlerEnabled A boolean flag indicating whether the back
  * handler should be enabled. Defaults to true.
  * @param onRootBack A lambda function to be executed when the back action
- * is triggered at the root of the navigation stack. This allows for custom
- * behavior when the user attempts to navigate back from the root.
+ * is triggered at the root of the navigation stack (when the stack size is 1).
+ * This allows for custom behavior when the user attempts to navigate back from the root.
  * @param content A composable function representing the content to be
- * displayed for the current destination. This content will be rendered
- * based on the current navigation state.
+ * displayed. This content will have access to all the composition locals provided
+ * by this function and should typically include [Pane] composables to render destinations.
  *
  * @throws IllegalStateException If no [ViewModelStoreOwner] is provided
- * via [LocalViewModelStoreOwner].
+ * via [LocalViewModelStoreOwner]. This is required to create the [MainNavigationViewModel].
  *
- * This function is marked with `@NonRestartableComposable` to indicate that
+ * @see NavigationViewModel For creating ViewModels scoped to destinations.
+ * @see rememberNavigationManager For creating a [NavigationManager] instance.
+ * @see Pane For rendering destination screens.
+ *
+ * This function is marked with [NonRestartableComposable] to indicate that
  * it should not be restarted during recompositions, ensuring consistent
  * navigation behavior throughout the app.
  */
