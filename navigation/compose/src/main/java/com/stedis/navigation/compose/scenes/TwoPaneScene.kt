@@ -7,7 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -54,43 +54,19 @@ public class TwoPaneScene : Scene {
             host.copy(stack = previousStack, currentDestination = previousStack.last())
 
         Row(Modifier.fillMaxSize()) {
-            PreviousPane(
-                modifier = Modifier.weight(0.5f),
-                navigationHost = previousHost
-            )
+            Column(modifier = Modifier.weight(0.5f)) {
+                Pane(
+                    navigationHost = previousHost,
+                    navigationAnimations = createPreviousPaneAnimations()
+                )
+            }
 
-            CurrentPane(
-                modifier = Modifier.weight(0.5f),
-                navigationHost = host
-            )
-        }
-    }
-
-    @Composable
-    private fun PreviousPane(
-        modifier: Modifier,
-        navigationHost: NavigationHost
-    ) {
-        Box(modifier = modifier) {
-            Pane(
-                navigationHost = navigationHost,
-                key = PaneKey.PREVIOUS_PANE,
-                navigationAnimations = createPreviousPaneAnimations()
-            )
-        }
-    }
-
-    @Composable
-    private fun CurrentPane(
-        modifier: Modifier,
-        navigationHost: NavigationHost
-    ) {
-        Box(modifier = modifier) {
-            Pane(
-                navigationHost = navigationHost,
-                key = PaneKey.CURRENT_PANE,
-                navigationAnimations = createCurrentPaneAnimations()
-            )
+            Column(modifier = Modifier.weight(0.5f)) {
+                Pane(
+                    navigationHost = host,
+                    navigationAnimations = createCurrentPaneAnimations()
+                )
+            }
         }
     }
 

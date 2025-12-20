@@ -30,11 +30,11 @@ public interface Scene {
  *
  * The navigation system evaluates a list of strategies in order until one returns a non-null scene.
  */
-    public interface SceneStrategy {
+public interface SceneStrategy {
 
-        @Composable
-        public fun calculateScene(navigationHost: NavigationHost): Scene?
-    }
+    @Composable
+    public fun calculateScene(navigationHost: NavigationHost): Scene?
+}
 
 public infix operator fun SceneStrategy.plus(otherSceneStrategy: SceneStrategy): List<SceneStrategy> =
     listOf(this, otherSceneStrategy)
@@ -119,5 +119,6 @@ public fun Scene(
         sceneStrategy.calculateScene(navigationHost) ?: SinglePaneSceneStrategy.calculateScene(
             navigationHost
         )
+
     scene.composable(navigationHost)
 }

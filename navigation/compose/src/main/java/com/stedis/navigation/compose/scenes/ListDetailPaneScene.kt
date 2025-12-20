@@ -1,11 +1,7 @@
 package com.stedis.navigation.compose.scenes
 
-import android.util.Log
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -81,14 +77,7 @@ public class ListDetailScene : Scene {
 
         Row(Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(listPaneWeight)) {
-                val paneKey = (listHost.currentDestination as? ComposeDestination)
-                    ?.metadata[PaneKey.PANE_KEY] as? String
-                    ?: PaneKey.DEFAULT_PANE
-
-                Pane(
-                    navigationHost = listHost,
-                    key = paneKey,
-                )
+                Pane(navigationHost = listHost)
             }
 
             Box(modifier = Modifier.weight(detailPaneWeight)) {
@@ -97,13 +86,8 @@ public class ListDetailScene : Scene {
                         listDestination.metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
                     metadata.placeholder()
                 } else {
-                    val paneKey = (host.currentDestination as? ComposeDestination)
-                        ?.metadata[PaneKey.PANE_KEY] as? String
-                        ?: PaneKey.DEFAULT_PANE
-
                     Pane(
                         navigationHost = host,
-                        key = paneKey,
                         navigationAnimations = NavigationAnimations(
                             replaceAnimation = fadeIn().togetherWith(fadeOut()),
                         )
