@@ -273,11 +273,12 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      *
      * Example of using perform:
      * ```
-     * inside("firstHost")
-     *  .inside("secondHost")
-     *  .perform {
-     *     addDestination(NewDestination)
-     *  }
+     * traversalContext
+     *  .inside("firstHost")
+     *      .inside("secondHost")
+     *      .perform {
+     *          addDestination(NewDestination)
+     *      }
      * ```
      *
      * @param body A lambda with receiver of type [NavigationHostBuilder] that allows for
@@ -309,62 +310,73 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
      *
      * Example of using switch with hostName:
      * ```
-     * inside("firstHost")
-     *  .inside("secondHost")
-     *  .switch("targetHost")
+     * traversalContext
+     *  .inside("firstHost")
+     *      .inside("secondHost")
+     *      .switch("targetHost")
      * ```
      *
      * @param hostName The name of the host to switch to.
      * @return The updated [NavigationStateBuilder] instance with the modified hosts.
      *
-     * @throws IllegalArgumentException If the shortest path cannot be found in the host tree
-     *                                  or if the root host cannot be determined.
+     * @throws IllegalStateException If the path is empty.
+     * @throws IllegalArgumentException If the shortest path cannot be found in the host tree,
+     *                                  if the root host cannot be determined,
+     *                                  or if an invalid path segment is encountered during update.
      */
     public fun TraversalContext.switch(hostName: String): NavigationStateBuilder {
         val path: List<String> = findShortestPathBFS(hosts, points + hostName)
             ?: throw IllegalArgumentException("The given path was not found in the host tree")
 
+        if (path.isEmpty()) throw IllegalStateException("Path cannot be empty")
+
         val head = path.first()
         val root = _hosts.find { it.hostName == head }
-            ?: throw IllegalArgumentException("root host can`t be null")
+            ?: throw IllegalArgumentException("Root host cannot be null")
+
+        val updatedRoot = updateHostAlongPath(root, path.drop(1))
 
         this@NavigationStateBuilder._hosts = hosts.map {
-            if (it.hostName == head) {
-                if (path.size == ONE) {
-                    it
-                } else {
-                    root.switchChild(path)
-                }
-            } else {
-                it
-            }
+            if (it.hostName == head) updatedRoot else it
         }.toMutableList()
 
         setCurrentHost(head)
-
         return this@NavigationStateBuilder
     }
 
-    private fun NavigationHost.switchChild(path: List<String>): NavigationHost {
-        val newPath = path.drop(ONE)
-        val newChildren = children.map {
-            if (it.hostName == newPath.first()) {
-                if (newPath.size == ONE) {
-                    it
-                } else {
-                    it.switchChild(newPath)
-                }
-            } else {
-                it
-            }
+    private fun updateHostAlongPath(
+        host: NavigationHost,
+        remainingPath: List<String>
+    ): NavigationHost {
+        if (remainingPath.isEmpty()) return host
+
+        val stack = mutableListOf<Pair<NavigationHost, Int>>()
+        var currentHost = host
+        var currentPath = remainingPath
+
+        while (currentPath.isNotEmpty()) {
+            val nextHostName = currentPath.first()
+            val nextIndex = currentHost.children.indexOfFirst { it.hostName == nextHostName }
+            if (nextIndex == -1) throw IllegalArgumentException("Invalid path: $nextHostName not found")
+
+            stack.add(Pair(currentHost, nextIndex))
+            currentHost = currentHost.children[nextIndex]
+            currentPath = currentPath.drop(1)
         }
 
-        return copy(
-            children = newChildren,
-            selectedChild = newChildren.find { it.hostName == newPath.first() }
-        )
-    }
+        var newHost = currentHost
+        for ((parentHost, childIndex) in stack.asReversed()) {
+            val newChildren = parentHost.children.toMutableList()
+            newChildren[childIndex] = newHost
 
+            newHost = parentHost.copy(
+                children = newChildren,
+                selectedChild = newChildren[childIndex]
+            )
+        }
+
+        return newHost
+    }
 
     /**
      * Builds a new instance of [NavigationState] using the current state of the builder.
@@ -386,8 +398,8 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
  * to the specified target host. The traversal context contains both the complete list of hosts
  * and the specific path sequence required to reach the target host.
  *
- * The search is performed using a depth-first traversal approach, examining each host and its
- * children recursively until the target host is found or all possibilities are exhausted.
+ * The search is performed using an iterative depth-first traversal approach, examining each host and its
+ * children until the target host is found or all possibilities are exhausted.
  *
  * @param target The target [NavigationHost] for which to find the traversal context.
  * @return A [TraversalContext] object containing:
@@ -397,7 +409,7 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
  *         Returns `null` if the target host is not found within the navigation state hierarchy.
  *
  * @throws IllegalStateException if the navigation state contains circular references that
- *         could cause infinite recursion (handled by the recursive search depth limits).
+ *         could cause infinite loops (handled by the iterative search implementation).
  *
  * Example usage:
  * ```
@@ -410,11 +422,10 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
  *
  * @see TraversalContext
  * @see NavigationHost
- * @see findHostPathRecursively
  */
 fun NavigationState.getTraversalContextForHost(target: NavigationHost): TraversalContext? {
     this.hosts.forEach {
-        val path = findHostPathRecursively(it, target, mutableListOf())
+        val path = findHostPathIterative(it, target)
         if (path != null) {
             return TraversalContext(
                 hosts = hosts,
@@ -426,24 +437,28 @@ fun NavigationState.getTraversalContextForHost(target: NavigationHost): Traversa
     return null
 }
 
-private fun findHostPathRecursively(
+private fun findHostPathIterative(
     current: NavigationHost,
-    target: NavigationHost,
-    path: MutableList<String>
+    target: NavigationHost
 ): List<String>? {
-    path.add(current.hostName)
 
-    if (current == target) {
-        return path.toList()
-    }
+    val stack = mutableListOf<NodeWithPath>()
+    stack.add(NodeWithPath(current, listOf(current.hostName)))
 
-    for (child in current.children) {
-        val result = findHostPathRecursively(child, target, path)
-        if (result != null) {
-            return result
+    while (stack.isNotEmpty()) {
+        val (node, currentPath) = stack.removeAt(stack.size - 1)
+
+        if (node == target) {
+            return currentPath
+        }
+
+        for (i in node.children.size - 1 downTo 0) {
+            val child = node.children[i]
+            stack.add(NodeWithPath(child, currentPath + child.hostName))
         }
     }
 
-    path.removeAt(path.size - 1)
     return null
 }
+
+private data class NodeWithPath(val host: NavigationHost, val path: List<String>)
