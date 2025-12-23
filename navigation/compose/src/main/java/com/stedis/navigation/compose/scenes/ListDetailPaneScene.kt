@@ -15,6 +15,7 @@ import com.stedis.navigation.compose.NavigationAnimations
 import com.stedis.navigation.compose.Pane
 import com.stedis.navigation.compose.Scene
 import com.stedis.navigation.compose.SceneStrategy
+import com.stedis.navigation.core.Destination
 import com.stedis.navigation.core.NavigationHost
 
 public object ListDetailSceneStrategy : SceneStrategy {
@@ -48,72 +49,37 @@ public object ListDetailSceneStrategy : SceneStrategy {
 
 public class ListDetailScene : Scene {
     override val composable: @Composable ((NavigationHost) -> Unit) = { host ->
-        val lastTwoDestinations = host.stack.takeLast(2) as? List<ComposeDestination>
-            ?: throw error("all destinations must be ComposeDestination")
+        val layoutState = computeLayoutState(host)
+        val listPaneMetadata =
+            layoutState.listDestination.metadata[PaneKey.LIST_PANE_KEY] as? ListPaneMetaData
+                ?: throw IllegalStateException("All destinations must have ListPaneMetaData")
 
-        val hasDetailPane = lastTwoDestinations.last().metadata.containsKey(PaneKey.DETAIL_PANE_KEY)
-        val onlyListPane = !hasDetailPane
-
-        val listDestination = if (onlyListPane) {
-            lastTwoDestinations.last()
-        } else {
-            lastTwoDestinations.first()
-        }
-
-        val (listPaneWeight, detailPaneWeight) = calculatePaneWeights(
-            lastTwoDestinations,
-            onlyListPane
-        )
-
-        val listStack = if (onlyListPane) {
-            host.stack
-        } else {
-            host.stack.dropLast(1)
-        }
         val listHost = host.copy(
-            stack = listStack,
-            currentDestination = listDestination
+            stack = layoutState.listStack,
+            currentDestination = layoutState.listDestination
         )
 
-        Row(Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(listPaneWeight)) {
-                Pane(navigationHost = listHost)
+        when {
+            layoutState.onlyListPane -> {
+                renderListOnly(
+                    listHost = listHost,
+                    listPaneMetadata = listPaneMetadata
+                )
             }
 
-            Box(modifier = Modifier.weight(detailPaneWeight)) {
-                if (onlyListPane) {
-                    val metadata =
-                        listDestination.metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
-                    metadata.placeholder()
-                } else {
-                    Pane(
-                        navigationHost = host,
-                        navigationAnimations = NavigationAnimations(
-                            replaceAnimation = fadeIn().togetherWith(fadeOut()),
-                        )
-                    )
-                }
+            else -> {
+                renderListAndDetail(
+                    listHost = listHost,
+                    detailHost = host,
+                    listPaneMetadata = listPaneMetadata,
+                )
             }
         }
-    }
-
-    private fun calculatePaneWeights(
-        destinations: List<ComposeDestination>,
-        onlyListPane: Boolean
-    ): Pair<Float, Float> {
-        val metadata = if (onlyListPane) {
-            destinations.last().metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
-        } else {
-            destinations.first().metadata[PaneKey.LIST_PANE_KEY] as ListPaneMetaData
-        }
-        val weight = metadata.weight
-        return weight to (1.0f - weight)
     }
 
     public companion object {
-
         public fun listPane(
-            placeholder: @Composable (() -> Unit) = {},
+            placeholder: @Composable (() -> Unit)? = null,
             weight: Float = 0.5f,
         ): Map<Any, Any> =
             mapOf(
@@ -128,7 +94,98 @@ public class ListDetailScene : Scene {
     }
 }
 
+private data class LayoutState(
+    val onlyListPane: Boolean,
+    val listDestination: ComposeDestination,
+    val detailDestination: ComposeDestination?,
+    val listStack: List<Destination>
+)
+
+private fun computeLayoutState(host: NavigationHost): LayoutState {
+    val lastTwoDestinations = host.stack.takeLast(2) as? List<ComposeDestination>
+        ?: throw IllegalStateException("All destinations must be ComposeDestination and stack must have at least one element")
+
+    val hasDetailPane = lastTwoDestinations.last().metadata.containsKey(PaneKey.DETAIL_PANE_KEY)
+    val onlyListPane = !hasDetailPane
+
+    val listDestination = if (onlyListPane) {
+        lastTwoDestinations.last()
+    } else {
+        lastTwoDestinations.first()
+    }
+
+    val detailDestination = if (onlyListPane) null else lastTwoDestinations.last()
+
+    val listStack = if (onlyListPane) {
+        host.stack
+    } else {
+        host.stack.dropLast(1)
+    }
+
+    return LayoutState(
+        onlyListPane = onlyListPane,
+        listDestination = listDestination,
+        detailDestination = detailDestination,
+        listStack = listStack
+    )
+}
+
+@Composable
+private fun renderListOnly(
+    listHost: NavigationHost,
+    listPaneMetadata: ListPaneMetaData
+) {
+    if (listPaneMetadata.placeholder != null) {
+        val placeholderWeight = 1.0f - listPaneMetadata.weight
+        Row(Modifier.fillMaxSize()) {
+            PaneBox(modifier = Modifier.weight(listPaneMetadata.weight)) {
+                Pane(navigationHost = listHost)
+            }
+            PaneBox(modifier = Modifier.weight(placeholderWeight)) {
+                listPaneMetadata.placeholder.invoke()
+            }
+        }
+    } else {
+        PaneBox(Modifier.fillMaxSize()) {
+            Pane(navigationHost = listHost)
+        }
+    }
+}
+
+@Composable
+private fun renderListAndDetail(
+    listHost: NavigationHost,
+    detailHost: NavigationHost,
+    listPaneMetadata: ListPaneMetaData,
+) {
+    val detailPaneWeight = 1.0f - listPaneMetadata.weight
+    Row(Modifier.fillMaxSize()) {
+        PaneBox(modifier = Modifier.weight(listPaneMetadata.weight)) {
+            Pane(navigationHost = listHost)
+        }
+        PaneBox(modifier = Modifier.weight(detailPaneWeight)) {
+            Pane(
+                navigationHost = detailHost,
+                navigationAnimations = NavigationAnimations(
+                    replaceAnimation = fadeIn().togetherWith(fadeOut())
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaneBox(
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = modifier) {
+        content()
+    }
+}
+
 data class ListPaneMetaData(
-    val placeholder: @Composable (() -> Unit),
+    val placeholder: @Composable (() -> Unit)? = null,
     val weight: Float,
 )
+
