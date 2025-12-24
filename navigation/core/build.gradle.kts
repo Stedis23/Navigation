@@ -1,11 +1,9 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-parcelize")
     `maven-publish`
-    id("com.vanniktech.maven.publish") version "0.33.0"
+    id("com.vanniktech.maven.publish") version "0.35.0"
 }
 
 tasks.withType<AbstractPublishToMaven>().configureEach {
@@ -14,7 +12,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 
 group = "io.github.stedis23"
-version = "0.6.0"
+version = "0.7.0"
 
 android {
     namespace = "com.stedis.navigation.core"
@@ -86,12 +84,8 @@ publishing {
             }
         }
 
-        // Список репозиториев куда публикуются артефакты
         repositories {
-            // mavenCentral() // Публикация в Maven Central делается через REST API с помошью отдельного плагина
-            mavenLocal() // Ищете файлы в директории ~/.m2/repository
-
-            // Репозиторий в build папке корня проекта
+            mavenLocal()
             maven(url = uri(rootProject.layout.buildDirectory.file("maven-repo"))) {
                 name = "BuildDir"
             }
@@ -132,7 +126,6 @@ mavenPublishing {
         }
     }
 
-    // Публикация в https://central.sonatype.com/
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
     signAllPublications()
 }
