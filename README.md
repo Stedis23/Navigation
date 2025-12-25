@@ -8,10 +8,10 @@ Navigation does not limit us!
 ```kotlin
 
 // Add dependencies to use without UI
-implementation("io.github.stedis23:navigation-core:0.6.0")
+implementation("io.github.stedis23:navigation-core:0.7.0")
 
 // For project with Compose
-implementation("io.github.stedis23:navigation-compose:0.6.0")
+implementation("io.github.stedis23:navigation-compose:0.7.0")
 
 ```
 
@@ -65,7 +65,7 @@ fun SecondSamplePane(text: String) {
 class FirstSampleDestination : ComposeDestination {
 
     @IgnoredOnParcel
-    override val composable: @Composable (Destination) -> Unit = {
+    override val composable: @Composable () -> Unit = {
         FirstSamplePane()
     }
 }
@@ -75,10 +75,10 @@ data class SecondSampleDestination(val text: String) : ComposeDestination {
 
 
     @IgnoredOnParcel
-    override val composable: @Composable (Destination) -> Unit = { destination ->
+    override val composable: @Composable () -> Unit = {
         //You can also pass parameters from your destination.
         //This is just one of several ways you can pass parameters.
-        SecondSamplePane((destination as SecondSampleDestination).text)
+        SecondSamplePane(this.text)
     }
 }
 
@@ -98,7 +98,8 @@ Navigation(
 ) {
     //Pass the current host to the panel to display the current destination.
     //You can also pass the current destination directly.
-    Pane(rememberNavigationHost("Main"))
+    val state = rememberNavigationState()
+    Pane(state.currentHost)
 }
 ```
 
