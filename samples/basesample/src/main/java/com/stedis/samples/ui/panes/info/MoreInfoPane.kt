@@ -42,10 +42,7 @@ fun MoreInfoPane() {
 
     Scaffold(
         topBar = {
-            TopBar(
-                text = stringResource(R.string.more_info),
-                onClick = { navigationManager.back() },
-            )
+            TopBar(text = stringResource(R.string.more_info))
         }
     ) {
         Column(

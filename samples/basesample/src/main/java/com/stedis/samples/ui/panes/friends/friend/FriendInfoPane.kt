@@ -24,25 +24,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.stedis.navigation.compose.LocalNavigationHost
-import com.stedis.navigation.compose.LocalNavigationManager
-import com.stedis.navigation.core.inside
 import com.stedis.samples.R
-import com.stedis.samples.navigation.ext.back
 import com.stedis.samples.ui.component.TopBar
 
 @Composable
 fun FriendInfoPane(friendId: Int) {
-    val navigationManager = LocalNavigationManager.current
-    val currentNavigationHost = LocalNavigationHost.current
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        TopBar(
-            onClick = { navigationManager.back { inside(currentNavigationHost.hostName) } }
-        )
+        TopBar()
 
         FriendProfile(
             friendName = stringResource(R.string.friend) + friendId,
