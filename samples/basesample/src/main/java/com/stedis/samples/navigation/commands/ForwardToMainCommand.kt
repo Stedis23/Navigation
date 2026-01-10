@@ -18,7 +18,7 @@ object ForwardToMainCommand : NavigationCommand {
             ) {
                 Host(
                     hostName = Hosts.FRIENDS.name,
-                    initialDestination = FriendsFeedDestination,
+                    initialDestination = FriendsFeedDestination(),
                 )
 
                 Host(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,9 +16,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOW
 import com.stedis.navigation.compose.LocalNavigationHost
 import com.stedis.navigation.compose.LocalNavigationManager
 import com.stedis.navigation.compose.Scene
-import com.stedis.navigation.compose.plus
-import com.stedis.navigation.compose.scenes.ListDetailSceneStrategy
-import com.stedis.navigation.compose.scenes.TwoPaneSceneStrategy
+import com.stedis.navigation.compose.scenes.rememberListDetailSceneStrategy
 import com.stedis.navigation.core.inside
 import com.stedis.samples.navigation.Hosts
 import com.stedis.samples.navigation.destinations.MoreInfoDestination
@@ -29,6 +28,7 @@ import com.stedis.samples.ui.component.NavigationBar
 fun MainPane() {
     val navigationManager = LocalNavigationManager.current
     val currentNavigationHost = LocalNavigationHost.current
+    val listDetailSceneStrategy = rememberListDetailSceneStrategy()
 
     currentNavigationHost.selectedChild?.let {
         if (it.stack.size > 1) {
@@ -48,7 +48,7 @@ fun MainPane() {
                     .weight(1f),
             ) {
                 currentNavigationHost.selectedChild?.let {
-                    Scene(it, ListDetailSceneStrategy + TwoPaneSceneStrategy)
+                    Scene(it, listDetailSceneStrategy)
                 }
             }
 
@@ -70,6 +70,8 @@ fun MainPane() {
                 onMoreInfoClick = { navigationManager.forward(MoreInfoDestination) }
             )
 
+            VerticalDivider()
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,7 +79,7 @@ fun MainPane() {
                     .weight(1f),
             ) {
                 currentNavigationHost.selectedChild?.let {
-                    Scene(it, ListDetailSceneStrategy + TwoPaneSceneStrategy)
+                    Scene(it, listDetailSceneStrategy)
                 }
             }
         }

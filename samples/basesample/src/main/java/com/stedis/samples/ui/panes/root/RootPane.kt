@@ -3,7 +3,6 @@ package com.stedis.samples.ui.panes.root
 import androidx.compose.runtime.Composable
 import com.stedis.navigation.compose.Navigation
 import com.stedis.navigation.compose.Pane
-import com.stedis.navigation.compose.Scene
 import com.stedis.navigation.compose.rememberNavigationManager
 import com.stedis.navigation.compose.rememberNavigationState
 import com.stedis.navigation.core.NavigationHost
