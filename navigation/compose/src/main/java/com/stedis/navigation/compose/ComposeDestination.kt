@@ -1,6 +1,8 @@
 package com.stedis.navigation.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -97,16 +99,19 @@ abstract class ComposeDestination(
     public fun Content() {
         val localSaveableStateHolder = LocalSaveableStateHolder.current
 
-        key(contentKey) {
-            val movableContent = remember {
-                movableContentMap.getOrPut(contentKey) {
-                    movableContentOf { content -> content() }
+        val entriesToExclude = LocalEntriesToExcludeFromCurrentScene.current
+        if (!entriesToExclude.contains(contentKey)) {
+            key(contentKey) {
+                val movableContent = remember {
+                    movableContentMap.getOrPut(contentKey) {
+                        movableContentOf { content -> content() }
+                    }
                 }
-            }
 
-            movableContent {
-                localSaveableStateHolder.SaveableStateProvider(contentKey) {
-                    content()
+                movableContent {
+                    localSaveableStateHolder.SaveableStateProvider(contentKey) {
+                        content()
+                    }
                 }
             }
         }
@@ -121,3 +126,8 @@ abstract class ComposeDestination(
  */
 @PublishedApi
 internal fun defaultContentKey(key: Any): Any = key.toString()
+
+internal val LocalEntriesToExcludeFromCurrentScene: ProvidableCompositionLocal<Set<Any>> =
+    compositionLocalOf {
+        HashSet()
+    }
