@@ -47,5 +47,5 @@ dependencies {
     implementation(libs.androidx.compose.adaptive)
 
     implementation(libs.navigation.core)
-    implementation(project(":navigation:compose"))
+    implementation(libs.navigation.compose)
 }
