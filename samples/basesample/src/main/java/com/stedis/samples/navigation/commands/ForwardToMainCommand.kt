@@ -30,5 +30,6 @@ object ForwardToMainCommand : NavigationCommand {
             }
 
             setCurrentHost(Hosts.MAIN.name)
+            removeHost(Hosts.GLOBAL.name)
         }
 }
