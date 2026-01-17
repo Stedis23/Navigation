@@ -2,8 +2,6 @@ package com.stedis.navigation.core
 
 import kotlinx.coroutines.cancel
 
-private const val ONE = 1
-
 public typealias StateBuilderDeclaration = NavigationStateBuilder.() -> Unit
 
 /**
@@ -80,17 +78,6 @@ public fun NavigationState.buildNewState(params: StateBuilderDeclaration? = null
         .also { if (params != null) it.params() }
         .cancelDeadScopes()
         .build()
-
-/**
- * Searches for a [NavigationHost] by its host name within the list of available hosts.
- *
- * @param hostName The name of the host to search for.
- *
- * @return The [NavigationHost] instance that matches the specified [hostName],
- *         or null if no such host exists.
- */
-public fun NavigationState.findHost(hostName: String): NavigationHost? =
-    hosts.find { it.hostName == hostName }
 
 /**
  * Builder class for creating and modifying instances of [NavigationState].
@@ -390,75 +377,3 @@ class NavigationStateBuilder(initialHost: NavigationHost) {
             currentDestination = currentDestination,
         )
 }
-
-/**
- * Retrieves the traversal context for a specific navigation host within the navigation state.
- *
- * This method searches through all hosts in the navigation state to find a path from any root host
- * to the specified target host. The traversal context contains both the complete list of hosts
- * and the specific path sequence required to reach the target host.
- *
- * The search is performed using an iterative depth-first traversal approach, examining each host and its
- * children until the target host is found or all possibilities are exhausted.
- *
- * @param target The target [NavigationHost] for which to find the traversal context.
- * @return A [TraversalContext] object containing:
- *         - `hosts`: The complete list of hosts in the navigation state
- *         - `points`: The ordered list of host names representing the path to the target host
- *
- *         Returns `null` if the target host is not found within the navigation state hierarchy.
- *
- * @throws IllegalStateException if the navigation state contains circular references that
- *         could cause infinite loops (handled by the iterative search implementation).
- *
- * Example usage:
- * ```
- * val context = navigationState.getTraversalContextForHost(targetHost)
- * if (context != null) {
- *     val pathToTarget = context.points
- *     val allHosts = context.hosts
- * }
- * ```
- *
- * @see TraversalContext
- * @see NavigationHost
- */
-fun NavigationState.getTraversalContextForHost(target: NavigationHost): TraversalContext? {
-    this.hosts.forEach {
-        val path = findHostPathIterative(it, target)
-        if (path != null) {
-            return TraversalContext(
-                hosts = hosts,
-                points = path,
-            )
-        }
-    }
-
-    return null
-}
-
-private fun findHostPathIterative(
-    current: NavigationHost,
-    target: NavigationHost
-): List<String>? {
-
-    val stack = mutableListOf<NodeWithPath>()
-    stack.add(NodeWithPath(current, listOf(current.hostName)))
-
-    while (stack.isNotEmpty()) {
-        val (node, currentPath) = stack.removeAt(stack.size - 1)
-
-        if (node == target) {
-            return currentPath
-        }
-
-        for (i in node.children.size - 1 downTo 0) {
-            val child = node.children[i]
-            stack.add(NodeWithPath(child, currentPath + child.hostName))
-        }
-    }
-
-    return null
-}
-
-private data class NodeWithPath(val host: NavigationHost, val path: List<String>)
